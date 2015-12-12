@@ -12,10 +12,11 @@ This component of the Asphalt framework provides integration with a number of di
 serialization schemes with a common API.
 
 Supported serializers:
-  * JSON_
-  * msgpack_
-  * Pickle_
-  * YAML_
+
+* JSON_
+* msgpack_
+* Pickle_
+* YAML_
 
 Additional backends may be provided through third party plugins.
 
