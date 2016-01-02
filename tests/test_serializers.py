@@ -2,6 +2,7 @@ import re
 
 import pytest
 
+from asphalt.serialization.serializers.cbor import CBORSerializer
 from asphalt.serialization.serializers.json import JSONSerializer
 from asphalt.serialization.serializers.msgpack import MsgpackSerializer
 from asphalt.serialization.serializers.pickle import PickleSerializer
@@ -9,11 +10,12 @@ from asphalt.serialization.serializers.yaml import YAMLSerializer
 
 
 @pytest.fixture(params=[
+    CBORSerializer,
     JSONSerializer,
     MsgpackSerializer,
     PickleSerializer,
     YAMLSerializer
-], ids=['json', 'msgpack', 'pickle', 'yaml'])
+], ids=['cbor', 'json', 'msgpack', 'pickle', 'yaml'])
 def serializer(request):
     return request.param()
 

@@ -13,6 +13,7 @@ serialization schemes with a common API.
 
 Supported serializers:
 
+* CBOR_
 * JSON_
 * msgpack_
 * Pickle_
@@ -30,6 +31,7 @@ Project links
 * `Issue tracker`_
 
 
+.. _CBOR: http://cbor.io/
 .. _JSON: http://wikipedia.org/wiki/JSON
 .. _msgpack: http://msgpack.org/
 .. _Pickle: https://docs.python.org/3/library/pickle.html

@@ -7,6 +7,7 @@ The available backends are:
 ======= ====================================================================
 Alias   Backend class
 ======= ====================================================================
+cbor    :class:`asphalt.serialization.serializers.cbor.CBORSerializer`
 json    :class:`asphalt.serialization.serializers.json.JSONSerializer`
 msgpack :class:`asphalt.serialization.serializers.msgpack.MsgpackSerializer`
 pickle  :class:`asphalt.serialization.serializers.pickle.PickleSerializer`
@@ -46,6 +47,7 @@ configuration option:
     components:
       serialization:
         serializers:
+          cbor: {}
           json: {}
           msgpack: {}
           pickle: {}
@@ -54,8 +56,9 @@ configuration option:
             context_attr: foo
             encoding: iso-8859-15
 
-The above configuration creates 4 resources of type :class:`asphalt.serialization.api.Serializer`:
+The above configuration creates 5 resources of type :class:`asphalt.serialization.api.Serializer`:
 
+* ``cbor`` as ``ctx.cbor``
 * ``json`` as ``ctx.json``
 * ``msgpack`` as ``ctx.msgpack``
 * ``pickle`` as ``ctx.pickle``

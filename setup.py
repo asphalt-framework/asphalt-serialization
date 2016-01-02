@@ -38,13 +38,15 @@ setup(
         'asphalt >= 1.2, < 2.0'
     ],
     extras_require={
-        'msgpack': 'msgpack-python >= 0.4.6'
+        'msgpack': 'msgpack-python >= 0.4.6',
+        'cbor': 'cbor >= 0.1.24'
     },
     entry_points={
         'asphalt.components': [
             'serialization = asphalt.serialization.component:SerializationComponent'
         ],
         'asphalt.serialization.serializers': [
+            'cbor = asphalt.serialization.serializers.cbor:CBORSerializer',
             'json = asphalt.serialization.serializers.json:JSONSerializer',
             'msgpack = asphalt.serialization.serializers.msgpack:MsgpackSerializer',
             'pickle = asphalt.serialization.serializers.pickle:PickleSerializer',
