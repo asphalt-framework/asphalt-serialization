@@ -1,8 +1,8 @@
-from asyncio.coroutines import coroutine
-
+from asyncio import coroutine
 from typing import Dict, Any
 import logging
 
+from typeguard import check_argument_types
 from asphalt.core.component import Component
 from asphalt.core.context import Context
 from asphalt.core.util import PluginContainer
@@ -25,6 +25,7 @@ class SerializationComponent(Component):
     """
 
     def __init__(self, serializers: Dict[str, Dict[str, Any]]=None, **default_serializer_args):
+        assert check_argument_types()
         if serializers and default_serializer_args:
             raise ValueError('specify either a "serializers" dictionary or the default '
                              'serializer\'s options directly, but not both')
@@ -52,6 +53,7 @@ class SerializationComponent(Component):
         :param backend_args: keyword arguments passed to the constructor of the backend class
 
         """
+        assert check_argument_types()
         return context_attr, serializer_backends.create_object(type, **backend_args)
 
     @coroutine

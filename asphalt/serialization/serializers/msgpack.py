@@ -1,5 +1,7 @@
 from typing import Dict, Any
 
+from typeguard import check_argument_types
+
 from ..api import Serializer
 
 try:
@@ -36,6 +38,7 @@ class MsgpackSerializer(Serializer):
     __slots__ = '_packer_options', '_unpacker_options'
 
     def __init__(self, packer_options: Dict[str, Any]=None, unpacker_options: Dict[str, Any]=None):
+        assert check_argument_types()
         packer_options = packer_options or {}
         packer_options.setdefault('use_bin_type', True)
         self._packer_options = packer_options

@@ -2,6 +2,7 @@ from typing import Dict, Any
 from json.decoder import JSONDecoder
 from json.encoder import JSONEncoder
 
+from typeguard import check_argument_types
 from asphalt.core.util import resolve_reference
 
 from ..api import Serializer
@@ -29,6 +30,7 @@ class JSONSerializer(Serializer):
 
     def __init__(self, encoder_options: Dict[str, Any]=None, decoder_options: Dict[str, Any]=None,
                  encoding: str='utf-8'):
+        assert check_argument_types()
         self.encoding = encoding
         encoder_options = encoder_options or {}
         encoder_options['default'] = resolve_reference(encoder_options.get('default'))

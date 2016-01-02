@@ -1,3 +1,4 @@
+from typeguard import check_argument_types
 from typing import Any, Dict
 
 import yaml
@@ -21,6 +22,7 @@ class YAMLSerializer(Serializer):
     __slots__ = '_dumper_class', '_loader_class', '_dumper_options'
 
     def __init__(self, safe: bool=True, dumper_options: Dict[str, Any]=None):
+        assert check_argument_types()
         self._dumper_class = yaml.SafeDumper if safe else yaml.Dumper
         self._loader_class = yaml.SafeLoader if safe else yaml.Loader
         self._dumper_options = dumper_options or {}
