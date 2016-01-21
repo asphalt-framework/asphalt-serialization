@@ -1,0 +1,5 @@
+[run]
+source = asphalt.serialization
+
+[report]
+show_missing = true
