@@ -3,7 +3,6 @@ sudo: false
 language: python
 
 python:
-  - "3.4"
   - "3.5"
 
 install: pip install tox-travis coveralls
@@ -16,5 +15,7 @@ notifications:
   irc:
     channels:
       - "chat.freenode.net#asphalt"
+    on_success: change
+    on_failure: change
     use_notice: true
     skip_join: true

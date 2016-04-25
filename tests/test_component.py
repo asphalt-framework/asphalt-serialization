@@ -7,7 +7,7 @@ from asphalt.serialization.serializers.json import JSONSerializer
 
 
 @pytest.mark.asyncio
-def test_component_start():
+async def test_component_start():
     component = SerializationComponent(serializers={
         'json': {'encoder_options': {'allow_nan': False}},
         'msgpack': {'unpacker_options': {'encoding': 'iso-8859-1'}},
@@ -15,7 +15,7 @@ def test_component_start():
         'yaml': {'safe': False}
     })
     ctx = Context()
-    yield from component.start(ctx)
+    await component.start(ctx)
 
     assert ctx.json
     assert ctx.msgpack
@@ -24,18 +24,11 @@ def test_component_start():
 
 
 @pytest.mark.asyncio
-def test_default_config():
-    component = SerializationComponent()
+async def test_default_config():
+    component = SerializationComponent(backend='json')
     ctx = Context()
-    yield from component.start(ctx)
+    await component.start(ctx)
 
-    resource = yield from ctx.request_resource(Serializer)
+    resource = await ctx.request_resource(Serializer)
     assert isinstance(resource, JSONSerializer)
-    assert ctx.json is resource
-
-
-def test_conflicting_config():
-    exc = pytest.raises(ValueError, SerializationComponent, serializers={'default': {}},
-                        type='json')
-    assert str(exc.value) == ('specify either a "serializers" dictionary or the default '
-                              'serializer\'s options directly, but not both')
+    assert ctx.serializer is resource

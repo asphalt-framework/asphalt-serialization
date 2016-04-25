@@ -4,20 +4,15 @@
 .. image:: https://coveralls.io/repos/asphalt-framework/asphalt-serialization/badge.svg?branch=master&service=github
   :target: https://coveralls.io/github/asphalt-framework/asphalt-serialization?branch=master
   :alt: Code Coverage
-.. image:: https://codeclimate.com/github/asphalt-framework/asphalt-serialization/badges/gpa.svg
-  :target: https://codeclimate.com/github/asphalt-framework/asphalt-serialization
-  :alt: Code Climate
 
-This component of the Asphalt framework provides integration with a number of different
-serialization schemes with a common API.
+This Asphalt framework component provides a standardized interface for a number of different
+serialization algorithms:
 
-Supported serializers:
-
-* CBOR_
-* JSON_
-* msgpack_
-* Pickle_
-* YAML_
+* CBOR_ (using `cbor <https://pypi.python.org/pypi/cbor>`_)
+* JSON_ (using the Python standard library ``json`` module)
+* msgpack_ (using `msgpack-python <https://pypi.python.org/pypi/msgpack-python>`_)
+* Pickle_ (using the Python standard library ``pickle`` module)
+* YAML_ (using `PyYAML <https://pypi.python.org/pypi/PyYAML>`_)
 
 Additional backends may be provided through third party plugins.
 

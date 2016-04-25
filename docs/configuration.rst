@@ -1,39 +1,35 @@
 Configuration
 =============
 
-This component supports configuration of one or more serializer resources.
-The available backends are:
+To configure a serializer for your application, you need to choose a backend and then specify
+any necessary configuration values for it. The following backends are provided out of the box:
 
-======= ====================================================================
-Alias   Backend class
-======= ====================================================================
-cbor    :class:`asphalt.serialization.serializers.cbor.CBORSerializer`
-json    :class:`asphalt.serialization.serializers.json.JSONSerializer`
-msgpack :class:`asphalt.serialization.serializers.msgpack.MsgpackSerializer`
-pickle  :class:`asphalt.serialization.serializers.pickle.PickleSerializer`
-yaml    :class:`asphalt.serialization.serializers.yaml.YAMLSerializer`
-======= ====================================================================
+* :mod:`~asphalt.serialization.serializers.cbor` (**recommended**)
+* :mod:`~asphalt.serialization.serializers.json`
+* :mod:`~asphalt.serialization.serializers.msgpack`
+* :mod:`~asphalt.serialization.serializers.pickle`
+* :mod:`~asphalt.serialization.serializers.yaml`
 
-The minimal configuration is as follows:
+Other backends may be provided by other components.
 
-.. code-block:: yaml
-
-    components:
-      serialization: {}
-
-This will publish a resource of type :class:`asphalt.serialization.api.Serializer`, named
-``default``. The resource will be an instance of
-:class:`~asphalt.serialization.serializers.json.JSONSerializer` and will appear in the context as
-the ``json`` attribute.
-
-What if you want to use, say, ``msgpack`` for serialization?
-You can then configure the component a bit differently:
+Once you've selected a backend, see its specific documentation to find out what configuration
+values you need to provide, if any. Configuration values are expressed as constructor arguments
+for the backend class:
 
 .. code-block:: yaml
 
     components:
       serialization:
-        type: msgpack
+        backend: json
+
+This configuration publishes a :class:`asphalt.serialization.api.Serializer` resource named
+``default`` using the JSON backend, accessible as ``ctx.serializer``. The same can be done directly
+in Python code as follows::
+
+    class ApplicationComponent(ContainerComponent):
+        async def start(ctx: Context):
+            self.add_component('serialization', backend='json')
+            await super().start()
 
 
 Multiple serializers
@@ -47,12 +43,12 @@ configuration option:
     components:
       serialization:
         serializers:
-          cbor: {}
-          json: {}
-          msgpack: {}
-          pickle: {}
+          cbor:
+          json:
+          msgpack:
+          pickle:
           foobar:
-            type: json
+            backend: json
             context_attr: foo
             encoding: iso-8859-15
 
