@@ -3,9 +3,7 @@ from typing import Dict, Any
 
 from typeguard import check_argument_types
 
-from asphalt.core.component import Component
-from asphalt.core.context import Context
-from asphalt.core.util import PluginContainer, merge_config
+from asphalt.core.component import Component, Context, PluginContainer, merge_config
 from asphalt.serialization.api import Serializer
 
 serializer_backends = PluginContainer('asphalt.serialization.serializers', Serializer)
