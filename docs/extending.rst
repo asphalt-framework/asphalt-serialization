@@ -19,7 +19,7 @@ If you want your serializer to be available as a backend for
 :class:`~asphalt.serialization.component.SerializationComponent`, you need to add the corresponding
 entry point for it. Suppose your serializer class is named ``AwesomeSerializer``, lives in the
 package ``foo.bar.awesome`` and you want to give it the alias ``awesome``, add this line to your
-project's ``setup.py`` under the ``entrypoints`` argument in the
+project's ``setup.py`` under the ``entry_points`` argument in the
 ``asphalt.serialization.serializers`` namespace:
 
 .. code-block:: python
