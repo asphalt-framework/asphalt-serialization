@@ -1,7 +1,7 @@
 .. image:: https://travis-ci.org/asphalt-framework/asphalt-serialization.svg?branch=master
   :target: https://travis-ci.org/asphalt-framework/asphalt-serialization
   :alt: Build Status
-.. image:: https://coveralls.io/repos/asphalt-framework/asphalt-serialization/badge.svg?branch=master&service=github
+.. image:: https://coveralls.io/repos/github/asphalt-framework/asphalt-serialization/badge.svg?branch=master
   :target: https://coveralls.io/github/asphalt-framework/asphalt-serialization?branch=master
   :alt: Code Coverage
 
@@ -16,7 +16,6 @@ serialization algorithms:
 
 Additional backends may be provided through third party plugins.
 
-
 Project links
 -------------
 
@@ -24,7 +23,6 @@ Project links
 * `Help and support`_
 * `Source code`_
 * `Issue tracker`_
-
 
 .. _CBOR: http://cbor.io/
 .. _JSON: http://wikipedia.org/wiki/JSON
