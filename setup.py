@@ -9,7 +9,7 @@ setup(
         'local_scheme': 'dirty-tag'
     },
     description='Serialization component for the Asphalt framework',
-    long_description=Path(__file__).parent.joinpath('README.rst').read_text('utf-8'),
+    long_description=Path(__file__).with_name('README.rst').read_text('utf-8'),
     author='Alex Grönholm',
     author_email='alex.gronholm@nextday.fi',
     url='https://github.com/asphalt-framework/asphalt-serialization',
