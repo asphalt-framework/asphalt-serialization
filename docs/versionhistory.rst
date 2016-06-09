@@ -3,6 +3,11 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
+**3.0.0**
+
+- **BACKWARD INCOMPATIBLE** Switched the CBOR implementation to
+  `cbor2 <https://pypi.io/project/cbor2/>`
+
 **2.0.0** (2016-05-09)
 
 - **BACKWARD INCOMPATIBLE** Migrated to Asphalt 2.0
