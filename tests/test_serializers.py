@@ -35,8 +35,8 @@ def test_basic_types_roundtrip(serializer, input):
     assert deserialized == input
 
 
-@pytest.mark.parametrize('serializer', [PickleSerializer(), YAMLSerializer()],
-                         ids=['pickle', 'yaml'])
+@pytest.mark.parametrize('serializer', [CBORSerializer(), PickleSerializer(), YAMLSerializer()],
+                         ids=['cbor', 'pickle', 'yaml'])
 def test_circular_reference(serializer):
     a = {'foo': 1}
     b = {'a': a}
