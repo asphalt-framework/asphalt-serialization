@@ -7,6 +7,7 @@ This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
 - **BACKWARD INCOMPATIBLE** Switched the CBOR implementation to
   `cbor2 <https://pypi.io/project/cbor2/>`
+- **BACKWARD INCOMPATIBLE** Switched msgpack's MIME type to ``application/msgpack``
 
 **2.0.0** (2016-05-09)
 

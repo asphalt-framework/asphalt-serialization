@@ -51,4 +51,4 @@ class MsgpackSerializer(Serializer):
 
     @property
     def mimetype(self):
-        return 'application/x-msgpack'
+        return 'application/msgpack'
