@@ -31,4 +31,4 @@ async def test_default_config():
 
     resource = await ctx.request_resource(Serializer)
     assert isinstance(resource, JSONSerializer)
-    assert ctx.serializer is resource
+    assert ctx.json is resource

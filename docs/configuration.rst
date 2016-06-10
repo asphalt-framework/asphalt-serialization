@@ -1,6 +1,8 @@
 Configuration
 =============
 
+.. highlight:: yaml
+
 To configure a serializer for your application, you need to choose a backend and then specify
 any necessary configuration values for it. The following backends are provided out of the box:
 
@@ -14,16 +16,14 @@ Other backends may be provided by other components.
 
 Once you've selected a backend, see its specific documentation to find out what configuration
 values you need to provide, if any. Configuration values are expressed as constructor arguments
-for the backend class:
-
-.. code-block:: yaml
+for the backend class::
 
     components:
       serialization:
         backend: json
 
 This configuration publishes a :class:`asphalt.serialization.api.Serializer` resource named
-``default`` using the JSON backend, accessible as ``ctx.serializer``. The same can be done directly
+``default`` using the JSON backend, accessible as ``ctx.json``. The same can be done directly
 in Python code as follows::
 
     class ApplicationComponent(ContainerComponent):
@@ -36,9 +36,7 @@ Multiple serializers
 --------------------
 
 If you need to configure multiple serializers, you can do so by using the ``serializers``
-configuration option:
-
-.. code-block:: yaml
+configuration option::
 
     components:
       serialization:

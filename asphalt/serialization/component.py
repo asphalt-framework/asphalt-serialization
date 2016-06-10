@@ -23,8 +23,8 @@ class SerializationComponent(Component):
     If ``serializers`` is defined, any extra keyword arguments are used as default values for
     :meth:`configure_serializer` for all serializers (:func:`~asphalt.core.util.merge_config` is
     used to merge the per-serializer arguments with the defaults). Otherwise, a single serializer
-    is created based on the provided default arguments, with ``context_attr`` defaulting to
-    ``serializer``.
+    is created based on the provided default arguments, with ``context_attr`` defaulting to the
+    name of the chosen backend.
 
     :param serializers: a dictionary of resource name ⭢ :meth:`configure_serializer` arguments
     :param default_serializer_args: default values for omitted :meth:`configure_serializer`
@@ -34,7 +34,8 @@ class SerializationComponent(Component):
     def __init__(self, serializers: Dict[str, Dict[str, Any]] = None, **default_serializer_args):
         assert check_argument_types()
         if not serializers:
-            default_serializer_args.setdefault('context_attr', 'serializer')
+            default_serializer_args.setdefault('context_attr',
+                                               default_serializer_args.get('backend'))
             serializers = {'default': default_serializer_args}
 
         self.serializers = []
