@@ -1,12 +1,15 @@
-from typing import Dict, Any
+from functools import partial
+from typing import Dict, Any, Callable, Union
 
-from msgpack import packb, unpackb
+from asphalt.core.util import qualified_name
+from msgpack import packb, unpackb, ExtType
 from typeguard import check_argument_types
 
-from asphalt.serialization.api import Serializer
+from asphalt.serialization.api import CustomizableSerializer
+from asphalt.serialization.marshalling import default_marshaller, default_unmarshaller
 
 
-class MsgpackSerializer(Serializer):
+class MsgpackSerializer(CustomizableSerializer):
     """
     Serializes objects using the msgpack library.
 
@@ -30,24 +33,74 @@ class MsgpackSerializer(Serializer):
     :param unpacker_options: keyword arguments passed to :func:`msgpack.unpackb`
     """
 
-    __slots__ = '_packer_options', '_unpacker_options'
+    __slots__ = ('packer_options', 'unpacker_options', 'custom_type_code', '_marshallers',
+                 '_unmarshallers')
 
     def __init__(self, packer_options: Dict[str, Any] = None,
-                 unpacker_options: Dict[str, Any] = None):
+                 unpacker_options: Dict[str, Any] = None, custom_type_code: int = 119):
         assert check_argument_types()
-        packer_options = packer_options or {}
-        packer_options.setdefault('use_bin_type', True)
-        self._packer_options = packer_options
+        self.custom_type_code = custom_type_code
+        self._marshallers = {}
+        self._unmarshallers = {}
 
-        unpacker_options = unpacker_options or {}
-        unpacker_options.setdefault('encoding', 'utf-8')
-        self._unpacker_options = unpacker_options
+        self.packer_options = packer_options or {}
+        self.packer_options.setdefault('use_bin_type', True)
+
+        self.unpacker_options = unpacker_options or {}
+        self.unpacker_options.setdefault('encoding', 'utf-8')
 
     def serialize(self, obj) -> bytes:
-        return packb(obj, **self._packer_options)
+        return packb(obj, **self.packer_options)
 
     def deserialize(self, payload: bytes):
-        return unpackb(payload, **self._unpacker_options)
+        return unpackb(payload, **self.unpacker_options)
+
+    def register_custom_type(
+            self, cls: type, marshaller: Union[Callable[[Any], Any], bool] = True,
+            unmarshaller: Union[Callable[[Any], Any], bool] = True, *,
+            typename: str = None) -> None:
+        assert check_argument_types()
+        typename = (typename or qualified_name(cls)).encode('utf-8')
+
+        if marshaller:
+            if isinstance(marshaller, bool):
+                marshaller = default_marshaller
+
+            self._marshallers[cls] = typename, marshaller
+            self.packer_options['default'] = self._default_encoder
+
+        if unmarshaller:
+            if isinstance(unmarshaller, bool):
+                unmarshaller = partial(default_unmarshaller, cls=cls)
+
+            self._unmarshallers[typename] = cls, unmarshaller
+            self.unpacker_options['ext_hook'] = self._custom_object_hook
+
+    def _default_encoder(self, obj):
+        obj_type = obj.__class__
+        try:
+            typename, marshaller = self._marshallers[obj_type]
+        except KeyError:
+            raise LookupError('no marshaller found for type "{}"'
+                              .format(qualified_name(obj_type))) from None
+
+        state = marshaller(obj)
+        data = typename + b':' + self.serialize(state)
+        return ExtType(self.custom_type_code, data)
+
+    def _custom_object_hook(self, code: int, data: bytes):
+        if code == self.custom_type_code:
+            typename, payload = data.split(b':', 1)
+            state = self.deserialize(payload)
+            try:
+                cls, unmarshaller = self._unmarshallers[typename]
+            except KeyError:
+                raise LookupError('no unmarshaller found for type "{}"'
+                                  .format(typename.decode('utf-8'))) from None
+
+            return unmarshaller(state)
+        else:
+            return ExtType(code, data)
 
     @property
     def mimetype(self):

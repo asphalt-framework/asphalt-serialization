@@ -4,16 +4,16 @@ from typing import Dict, Any
 from typeguard import check_argument_types
 
 from asphalt.core.component import Component, Context, PluginContainer, merge_config
-from asphalt.serialization.api import Serializer
+from asphalt.serialization.api import Serializer, CustomizableSerializer
 
 serializer_backends = PluginContainer('asphalt.serialization.serializers', Serializer)
-
 logger = logging.getLogger(__name__)
 
 
 class SerializationComponent(Component):
     """
-    Publishes one or more :class:`~asphalt.serialization.api.Serializer` resources.
+    Publishes one or more :class:`~asphalt.serialization.api.Serializer` and (depending on the
+    serializers) :class:`~asphalt.serialization.api.CustomizableSerializer` resources.
 
     If more than one serializer is to be configured, provide a ``serializers`` argument as a
     dictionary where the key is the resource name and the value is a dictionary of keyword
@@ -62,6 +62,8 @@ class SerializationComponent(Component):
 
     async def start(self, ctx: Context):
         for resource_name, context_attr, serializer in self.serializers:
-            ctx.publish_resource(serializer, resource_name, context_attr, types=Serializer)
+            types = [interface for interface in (Serializer, CustomizableSerializer)
+                     if isinstance(serializer, interface)]
+            ctx.publish_resource(serializer, resource_name, context_attr, types=types)
             logger.info('Configured serializer (%s / ctx.%s; type=%s)', resource_name,
                         context_attr, serializer.mimetype)

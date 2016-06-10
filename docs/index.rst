@@ -5,7 +5,7 @@ Asphalt-serialization provides support for serializing Python objects to bytestr
 deserializing bytestrings back to Python objects.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    configuration
    usage
