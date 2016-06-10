@@ -35,7 +35,7 @@ setup(
     ],
     extras_require={
         'msgpack': 'msgpack-python >= 0.4.6',
-        'cbor': 'cbor2 ~= 1.0'
+        'cbor': 'cbor2 ~= 2.0'
     },
     entry_points={
         'asphalt.components': [
