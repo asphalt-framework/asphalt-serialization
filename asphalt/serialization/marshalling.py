@@ -1,5 +1,3 @@
-from typing import Dict, Any
-
 from asphalt.core import qualified_name
 
 
@@ -11,6 +9,7 @@ def default_marshaller(obj):
     ``__dict__`` of the object.
 
     :param obj: the object to marshal
+    :return: the marshalled object state
 
     """
     if hasattr(obj, '__getstate__'):
@@ -22,7 +21,7 @@ def default_marshaller(obj):
                         .format(qualified_name(obj.__class__)))
 
 
-def default_unmarshaller(state: Dict[str, Any], cls: type):
+def default_unmarshaller(state, cls: type):
     """
     Umarshal an object from the given state.
 
@@ -30,8 +29,8 @@ def default_unmarshaller(state: Dict[str, Any], cls: type):
     Then, if the ``__setstate__()`` method exists on the class, it is called with the state object
     as the argument. Otherwise, its ``__dict__`` is replaced with ``state``.
 
-    :param cls: the class the state belongs to
     :param state: the state object, as returned by :func:`default_marshaller`
+    :param cls: the class the state belongs to
     :return: an instance of ``cls``
 
     """
