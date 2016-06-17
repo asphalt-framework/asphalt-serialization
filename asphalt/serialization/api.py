@@ -52,20 +52,22 @@ class CustomizableSerializer(Serializer):
         The state object returned by the marshaller and passed to the unmarshaller can be any
         serializable type. Usually a dictionary mapping of attribute names to values is used.
 
+        .. warning:: Registering marshallers/unmarshallers for any custom type will override any
+            serializer specific encoding/decoding hooks (respectively) already in place!
+
         :param cls: the class to register
         :param marshaller: either:
+
             * a callable that takes the object to be marshalled as the argument and
               returns a state object
             * ``True``, which means that the default marshaller should be used
             * ``False``, which means that no marshaller should be registered
         :param unmarshaller: either:
+
             * a callable that takes the state object as argument and returns the unmarshalled
               object
             * ``True``, which means that the default unmarshaller should be used
             * ``False``, which means that no unmarshaller should be registered
         :param typename: a unique identifier for the type (defaults to the ``module:varname``
             reference to the class)
-
-        .. warning:: Registering any custom types will override any encoding/decoding hooks already
-            in place!
         """
