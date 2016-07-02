@@ -4,8 +4,8 @@ Using serializers
 Using serializers is quite straightforward::
 
     async def handler(ctx):
-        payload = ctx.json.serialize({'foo': 'example JSON object'})
-        original = ctx.json.deserialize(payload)  # {'foo': 'example JSON object'}
+        serialized = ctx.json.serialize({'foo': 'example JSON object'})
+        original = ctx.json.deserialize(payload)
 
 This example assumes a configuration where a JSON serializer is present as ``ctx.json``.
 
@@ -13,106 +13,105 @@ To see what Python types can be serialized by every serializer, consult the docu
 abstract :class:`~asphalt.serialization.api.Serializer` class.
 
 
-Registering custom objects with serializers
--------------------------------------------
+Registering custom types with serializers
+-----------------------------------------
 
-An application may sometimes need to send instances of classes over the wire that are not normally
+An application may sometimes need to send over the wire instances of classes that are not normally
 handled by the chosen serializer. In order to do that, a process called *marshalling* is used to
-reduce the object to something naturally serializable by the serializer. Conversely, the process
-of restoring the original object from a naturally serializable object is called *unmarshalling*.
-So marshalling happens before serialization and unmarshalling happens after deserialization.
+reduce the object to something the serializer can natively handle. Conversely, the process
+of restoring the original object from a natively serializable object is called *unmarshalling*.
 
-The ``pickle`` serializer automatically serializes the ``__dict__`` of an object, or calls
-``__getstate__()`` to obtain the information. This, however, comes at the cost of a major security
-problem, because pickle's deserializer can be made to execute any arbitrary code.
+The ``pickle`` serializer obtains the serializable state of an object from the ``__dict__``
+attribute, or alternatively, calls its ``__getstate__()`` method. Conversely, when deserializing it
+creates a new object using ``__new__()`` and either sets its ``__dict__`` or calls its
+``__setstate__`` method. While this is convenient, pickle has an important drawback that limits
+its usefulness. Pickle's deserializer automatically imports arbitrary modules and can trivially be
+made to execute any arbitrary code by maliciously constructing the datastream.
 
-A better way is to use one of the ``cbor``, ``msgpack`` or ``json`` serializers and register each
-type intended for serialization using
+A better solution is to use one of the ``cbor``, ``msgpack`` or ``json`` serializers and register
+each type intended for serialization using
 :meth:`~asphalt.serialization.api.CustomizableSerializer.register_custom_type`. This method lets
 the user register marshalling/unmarshalling functions that are called whenever the serializer
 encounters an instance of the registered type, or when the deserializer needs to reconstitute an
 object of that type using the state object previously returned by the marshaller callback.
 
 The default marshalling callback mimics pickle's behavior by returning the ``__dict__`` of an
-object or by calling its ``__getstate__()`` method. Likewise, the default unmarshalling callback
-calls ``__setstate__()`` with the state object, or simply sets the ``__dict__`` of an empty
-instance of the registered class.
+object or the return value of its ``__getstate__()`` method, if available. Likewise, the default
+unmarshalling callback either updates the ``__dict__`` attribute of the uninitialized instance, or
+calls its ``__setstate__()`` method, if available, with the state object.
 
-Rather than blindly serializing every attribute in the object, you could set up your custom
-marshalling/unmarshalling callbacks::
-
-    from datetime import datetime
+The vast majority of classes are directly compatible with the default marshaller and unmarshaller
+so registering them is quite straightforward::
 
     from asphalt.serialization.serializers.json import JSONSerializer
 
 
-    class User(object):
+    class User:
         def __init__(self, name, email, password):
             self.name = name
             self.email = email
             self.password = password
-            self.created_at = datetime.now()
-
-        def marshal(self):
-            # Omit the "password" and "created_at" attributes
-            return {
-                'name': self.name,
-                'email': self.email
-            }
-
-        @classmethod
-        def unmarshal(cls, state):
-            state['password'] = None
-            return cls(**state)
 
     serializer = JSONSerializer()
+    serializer.register_custom_type(User)
+
+If the class defines ``__slots__`` or requires custom marshalling/unmarshalling logic, the easiest
+way is to implement ``__getstate__`` and/or ``__setstate__`` in the class::
+
+    class User:
+        def __init__(self, name, email, password):
+            self.name = name
+            self.email = email
+            self.password = password
+
+        def __getstate__(self):
+            # Omit the "password" attribute
+            dict_copy = self.__dict__.copy()
+            del dict_copy['password']
+            return dict_copy
+
+        def __setstate__(self, state):
+            state['password'] = None
+            self.__dict__.update(state)
+
+    serializer = JSONSerializer()
+    serializer.register_custom_type(User)
+
+If you are unable to modify the class itself, you can instead use standalone functions for that::
+
+    def marshal_user(user):
+        # Omit the "password" attribute
+        dict_copy = user.__dict__.copy()
+        del dict_copy['password']
+        return dict_copy
+
+
+    def unmarshal_user(user, state):
+        state['password'] = None
+        user.__dict__.update(state)
+
+    serializer.register_custom_type(User, marshal_user, unmarshal_user)
+
+The callbacks can be a natural part of the class too if you want::
+
+    class User:
+        def __init__(self, name, email, password):
+            self.name = name
+            self.email = email
+            self.password = password
+
+        def marshal(self):
+            # Omit the "password" attribute
+            dict_copy = self.__dict__.copy()
+            del dict_copy['password']
+            return dict_copy
+
+        def unmarshal(self, state):
+            state['password'] = None
+            self.__dict__.update(state)
+
     serializer.register_custom_type(User, User.marshal, User.unmarshal)
 
 .. hint:: If a component depends on the ability to register custom types, it can request a resource
  of type :class:`~asphalt.serialization.api.CustomizableSerializer` instead of
  :class:`~asphalt.serialization.api.Serializer`.
-
-Integrating with a third party marshaller
------------------------------------------
-
-If you want, you can use a third party object marshalling framework, such as marshmallow_, to
-handle the marshalling. Here is a simple example that demonstrates how to hook up schema of a
-class to the serializer::
-
-    from datetime import date
-
-    from asphalt.serialization.serializers.json import JSONSerializer
-    from marshmallow import Schema, fields
-    from marshmallow.decorators import post_load
-
-
-    class User(object):
-        def __init__(self, name, email, created_at=None):
-            self.name = name
-            self.email = email
-            self.created_at = created_at or date.today()
-
-
-    class UserSchema(Schema):
-        name = fields.Str()
-        email = fields.Email()
-        created_at = fields.DateTime()
-
-        @post_load
-        def make_user(self, data):
-            return User(**data)
-
-    schema = UserSchema()
-    serializer = JSONSerializer()
-    serializer.register_custom_type(User, lambda obj: schema.dump(obj).data,
-                                    lambda state: schema.load(state).data)
-
-Now you can happily serialize any User object and it all goes through ``UserSchema``::
-
-    user = User('Test person', 'test@example.org')
-    data = serializer.serialize(user)
-    user2 = serializer.deserialize(data)
-    assert user2.created_at == user.created_at
-
-
-.. _marshmallow: http://marshmallow.readthedocs.io/en/latest/

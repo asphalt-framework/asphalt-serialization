@@ -1,5 +1,4 @@
-from functools import partial
-from typing import Dict, Any, Callable, Union
+from typing import Dict, Any, Callable, Optional
 
 from asphalt.core.util import qualified_name
 from msgpack import packb, unpackb, ExtType
@@ -56,23 +55,17 @@ class MsgpackSerializer(CustomizableSerializer):
         return unpackb(payload, **self.unpacker_options)
 
     def register_custom_type(
-            self, cls: type, marshaller: Union[Callable[[Any], Any], bool] = True,
-            unmarshaller: Union[Callable[[Any], Any], bool] = True, *,
+            self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
+            unmarshaller: Optional[Callable[[Any, Any], Any]] = default_unmarshaller, *,
             typename: str = None) -> None:
         assert check_argument_types()
         typename = (typename or qualified_name(cls)).encode('utf-8')
 
         if marshaller:
-            if isinstance(marshaller, bool):
-                marshaller = default_marshaller
-
             self._marshallers[cls] = typename, marshaller
             self.packer_options['default'] = self._default_encoder
 
         if unmarshaller:
-            if isinstance(unmarshaller, bool):
-                unmarshaller = partial(default_unmarshaller, cls=cls)
-
             self._unmarshallers[typename] = cls, unmarshaller
             self.unpacker_options['ext_hook'] = self._custom_object_hook
 
@@ -98,7 +91,9 @@ class MsgpackSerializer(CustomizableSerializer):
                 raise LookupError('no unmarshaller found for type "{}"'
                                   .format(typename.decode('utf-8'))) from None
 
-            return unmarshaller(state)
+            instance = cls.__new__(cls)
+            unmarshaller(instance, state)
+            return instance
         else:
             return ExtType(code, data)
 

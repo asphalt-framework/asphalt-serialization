@@ -1,13 +1,13 @@
 import re
+from types import SimpleNamespace
 
 import pytest
-from msgpack import ExtType
-
 from asphalt.serialization.serializers.cbor import CBORSerializer
 from asphalt.serialization.serializers.json import JSONSerializer
 from asphalt.serialization.serializers.msgpack import MsgpackSerializer
 from asphalt.serialization.serializers.pickle import PickleSerializer
 from asphalt.serialization.serializers.yaml import YAMLSerializer
+from msgpack import ExtType
 
 
 class SimpleType:
@@ -42,9 +42,8 @@ class SlottedSimpleType:
 
 
 class CustomStateSimpleType(SimpleType):
-    @classmethod
-    def unmarshal(cls, state):
-        return cls(*state)
+    def unmarshal(self, state):
+        self.value_a, self.value_b = state
 
     def marshal(self):
         return self.value_a, self.value_b
@@ -127,12 +126,23 @@ def test_custom_state(serializer):
 
 @pytest.mark.parametrize('serializer', [CBORSerializer(), MsgpackSerializer(), JSONSerializer()],
                          ids=['cbor', 'msgpack', 'json'])
-def test_unserializable(serializer):
+def test_missing_getattr(serializer):
     testval = UnserializableSimpleType(1, 'a')
     serializer.register_custom_type(UnserializableSimpleType)
     exc = pytest.raises(TypeError, serializer.serialize, testval)
     assert str(exc.value) == ("'test_serializers.UnserializableSimpleType' has no __dict__ "
                               "attribute and does not implement __getstate__()")
+
+
+@pytest.mark.parametrize('serializer', [CBORSerializer(), MsgpackSerializer(), JSONSerializer()],
+                         ids=['cbor', 'msgpack', 'json'])
+def test_missing_setattr(serializer):
+    testval = UnserializableSimpleType(1, 'a')
+    serializer.register_custom_type(UnserializableSimpleType, lambda instance: {})
+    serialized = serializer.serialize(testval)
+    exc = pytest.raises(Exception, serializer.deserialize, serialized)
+    assert str(exc.value).endswith("'test_serializers.UnserializableSimpleType' has no __dict__ "
+                                   "attribute and does not implement __setstate__()")
 
 
 @pytest.mark.parametrize('serializer', [MsgpackSerializer(), JSONSerializer()],
@@ -148,7 +158,7 @@ def test_missing_marshaller(serializer):
                          ids=['cbor', 'msgpack', 'json'])
 def test_missing_unmarshaller(serializer):
     serializer.register_custom_type(SlottedSimpleType)
-    serializer.register_custom_type(SimpleType, unmarshaller=False)
+    serializer.register_custom_type(SimpleType, unmarshaller=None)
     testval = SimpleType(1, 'a')
     serialized = serializer.serialize(testval)
     exc = pytest.raises(Exception, serializer.deserialize, serialized)
@@ -174,3 +184,19 @@ def test_msgpack_exttype_passthrough(serializer):
     assert isinstance(obj, ExtType)
     assert obj.code == 6
     assert obj.data == b'somedata'
+
+
+@pytest.mark.parametrize('serializer', [CBORSerializer()], ids=['cbor'])
+def test_cbor_self_referential_objects(serializer):
+    value1 = SimpleNamespace()
+    value1.val = 1
+    value1.next = value2 = SimpleNamespace()
+    value2.val = 2
+    value2.previous = value1
+
+    serializer.register_custom_type(SimpleNamespace, typename='Simple')
+    data = serializer.serialize(value1)
+    obj = serializer.deserialize(data)
+    assert obj.val == 1
+    assert obj.next.val == 2
+    assert obj.next.previous is obj
