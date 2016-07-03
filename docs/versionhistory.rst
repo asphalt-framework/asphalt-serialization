@@ -11,6 +11,7 @@ This library adheres to `Semantic Versioning <http://semver.org/>`_.
 - **BACKWARD INCOMPATIBLE** Switched the default context attribute name to the backend name,
   for consistency with asphalt-templating
 - Added custom type handling for CBOR, msgpack and JSON serializers
+- Serializer resources are now also published using their actual types (in addition the interfaces)
 
 **2.0.0** (2016-05-09)
 

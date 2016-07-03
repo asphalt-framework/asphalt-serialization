@@ -12,8 +12,13 @@ logger = logging.getLogger(__name__)
 
 class SerializationComponent(Component):
     """
-    Publishes one or more :class:`~asphalt.serialization.api.Serializer` and (depending on the
-    serializers) :class:`~asphalt.serialization.api.CustomizableSerializer` resources.
+    Publishes one or more serializer resources.
+
+    Every serializer resource will be published using the following types:
+
+    * :class:`~asphalt.serialization.api.Serializer`
+    * :class:`~asphalt.serialization.api.CustomizableSerializer` (if the serializer implements it)
+    * its actual class
 
     If more than one serializer is to be configured, provide a ``serializers`` argument as a
     dictionary where the key is the resource name and the value is a dictionary of keyword
@@ -63,8 +68,10 @@ class SerializationComponent(Component):
 
     async def start(self, ctx: Context):
         for resource_name, context_attr, serializer in self.serializers:
-            types = [interface for interface in (Serializer, CustomizableSerializer)
-                     if isinstance(serializer, interface)]
+            types = [Serializer, type(serializer)]
+            if isinstance(serializer, CustomizableSerializer):
+                types.append(CustomizableSerializer)
+
             ctx.publish_resource(serializer, resource_name, context_attr, types=types)
             logger.info('Configured serializer (%s / ctx.%s; type=%s)', resource_name,
                         context_attr, serializer.mimetype)
