@@ -3,7 +3,7 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
-**3.0.0**
+**3.0.0** (2016-07-03)
 
 - **BACKWARD INCOMPATIBLE** Switched the CBOR implementation to
   `cbor2 <https://pypi.io/project/cbor2/>`
