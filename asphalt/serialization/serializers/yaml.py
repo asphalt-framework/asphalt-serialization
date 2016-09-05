@@ -1,14 +1,22 @@
 from typeguard import check_argument_types
 from typing import Any, Dict
 
-import yaml
+from ruamel import yaml
 
-from ..api import Serializer
+from asphalt.serialization.api import Serializer
 
 
 class YAMLSerializer(Serializer):
     """
     Serializes objects to and from YAML format.
+
+    To use this serializer backend, the ``ruamel.yaml`` library must be installed.
+    A convenient way to do this is to install ``asphalt-serialization`` with the ``yaml``
+    extra:
+
+    .. code-block:: shell
+
+        $ pip install asphalt-serialization[yaml]
 
     .. warning:: This serializer is insecure in unsafe mode because it allows execution of
       arbitrary code when deserializing.

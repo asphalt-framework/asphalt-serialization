@@ -5,3 +5,4 @@ sphinx-autodoc-typehints >= 1.0.5
 sphinxcontrib-asyncio >= 0.2.0
 msgpack-python
 cbor2
+ruamel.yaml

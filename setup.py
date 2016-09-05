@@ -35,7 +35,8 @@ setup(
     ],
     extras_require={
         'msgpack': 'msgpack-python >= 0.4.6',
-        'cbor': 'cbor2 ~= 3.0'
+        'cbor': 'cbor2 ~= 3.0',
+        'yaml': 'ruamel.yaml >= 0.12'
     },
     entry_points={
         'asphalt.components': [
@@ -46,7 +47,7 @@ setup(
             'json = asphalt.serialization.serializers.json:JSONSerializer',
             'msgpack = asphalt.serialization.serializers.msgpack:MsgpackSerializer [msgpack]',
             'pickle = asphalt.serialization.serializers.pickle:PickleSerializer',
-            'yaml = asphalt.serialization.serializers.yaml:YAMLSerializer'
+            'yaml = asphalt.serialization.serializers.yaml:YAMLSerializer [yaml]'
         ]
     }
 )

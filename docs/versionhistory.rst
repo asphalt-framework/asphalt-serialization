@@ -3,6 +3,11 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
+**3.1.0**
+
+- Switched YAML serializer to use ruamel.yaml instead of PyYAML
+- Upgraded Asphalt core minimum version to v2.1
+
 **3.0.0** (2016-07-03)
 
 - **BACKWARD INCOMPATIBLE** Switched the CBOR implementation to
