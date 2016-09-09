@@ -115,3 +115,29 @@ The callbacks can be a natural part of the class too if you want::
 .. hint:: If a component depends on the ability to register custom types, it can request a resource
  of type :class:`~asphalt.serialization.api.CustomizableSerializer` instead of
  :class:`~asphalt.serialization.api.Serializer`.
+
+Serializing built-in custom types
+---------------------------------
+
+If you need to (de)serialize types that have mandatory arguments for their ``__new__()`` method,
+you will need to supply a specialized unmarshaller callback that returns a newly created instance
+of the target class. Likewise, if the class has neither a ``__dict__`` or a ``__getstate__()``
+method, a specialized marshaller callback is required.
+
+For example, to successfully marshal instances of :class:`datetime.timedelta`, you could use the
+following (un)marshalling callbacks::
+
+    from datetime import timedelta
+
+
+    def marshal_timedelta(td):
+        return td.total_seconds()
+
+
+    def unmarshal_timedelta(seconds):
+        return timedelta(seconds=seconds)
+
+    serializer.register_custom_type(timedelta, marshal_timedelta, unmarshal_timedelta)
+
+As usual, so long as the marshaller and unmarshaller callbacks agree on the format of the state
+object, it can be anything natively serializable.

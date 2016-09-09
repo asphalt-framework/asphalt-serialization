@@ -1,7 +1,8 @@
+import inspect
 from collections import OrderedDict
 from functools import partial
 from io import BytesIO
-from typing import Dict, Any, Callable, Optional
+from typing import Dict, Any, Callable, Optional, Union
 
 import cbor2
 from asphalt.core.util import qualified_name
@@ -31,14 +32,18 @@ def _decode_custom_type(decoder: cbor2.CBORDecoder, value, fp, shareable_index: 
     except KeyError:
         raise LookupError('no unmarshaller found for type "{}"'.format(typename)) from None
 
-    instance = cls.__new__(cls)
-    if shareable_index is not None:
-        decoder.shareables[shareable_index] = instance
-
     buf = BytesIO(serialized_state)
-    state = decoder.decode(buf)
-    unmarshaller(instance, state)
-    return instance
+    if cls is not None:
+        instance = cls.__new__(cls)
+        if shareable_index is not None:
+            decoder.shareables[shareable_index] = instance
+
+        state = decoder.decode(buf)
+        unmarshaller(instance, state)
+        return instance
+    else:
+        state = decoder.decode(buf)
+        return unmarshaller(state)
 
 
 class CBORSerializer(CustomizableSerializer):
@@ -80,7 +85,8 @@ class CBORSerializer(CustomizableSerializer):
 
     def register_custom_type(
             self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
-            unmarshaller: Optional[Callable[[Any, Any], Any]] = default_unmarshaller, *,
+            unmarshaller: Union[Callable[[Any, Any], None],
+                                Callable[[Any], Any], None] = default_unmarshaller, *,
             typename: str = None) -> None:
         assert check_argument_types()
         typename = typename or qualified_name(cls)
@@ -91,6 +97,9 @@ class CBORSerializer(CustomizableSerializer):
             encoders[cls] = partial(_encode_custom_type, serializer=self)
 
         if unmarshaller:
+            if len(inspect.signature(unmarshaller).parameters) == 1:
+                cls = None
+
             self.unmarshallers[typename] = cls, unmarshaller
             decoders = self.decoder_options.setdefault('semantic_decoders', {})
             decoders[self.custom_type_tag] = partial(_decode_custom_type, serializer=self)

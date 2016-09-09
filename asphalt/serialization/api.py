@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, Union
 
 from asphalt.serialization.marshalling import default_marshaller, default_unmarshaller
 
@@ -48,7 +48,8 @@ class CustomizableSerializer(Serializer):
     @abstractmethod
     def register_custom_type(
             self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
-            unmarshaller: Optional[Callable[[Any, Any], Any]] = default_unmarshaller, *,
+            unmarshaller: Union[Callable[[Any, Any], None],
+                                Callable[[Any], Any], None] = default_unmarshaller, *,
             typename: str = None) -> None:
         """
         Register a marshaller and/or unmarshaller for the given class.
@@ -62,8 +63,11 @@ class CustomizableSerializer(Serializer):
         :param cls: the class to register
         :param marshaller: a callable that takes the object to be marshalled as the argument and
               returns a state object
-        :param unmarshaller: a callable that takes an uninitialized object and its state object
-            as arguments and restores the state of the object
+        :param unmarshaller: a callable that either:
+
+            * takes an uninitialized instance of ``cls`` and its state object as arguments and
+              restores the state of the object
+            * takes a state object and returns a new instance of ``cls``
         :param typename: a unique identifier for the type (defaults to the ``module:varname``
             reference to the class)
         """

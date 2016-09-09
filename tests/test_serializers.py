@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timezone
 from types import SimpleNamespace
 
 import pytest
@@ -56,6 +57,14 @@ class UnserializableSimpleType:
     def __init__(self, value_a, value_b):
         self.value_a = value_a
         self.value_b = value_b
+
+
+def marshal_datetime(dt: datetime):
+    return dt.timestamp()
+
+
+def unmarshal_datetime(state):
+    return datetime.fromtimestamp(state, timezone.utc)
 
 
 @pytest.fixture(params=['cbor', 'json', 'msgpack', 'pickle', 'yaml'])
@@ -123,6 +132,14 @@ class TestCustomTypes:
         output = serializer.serialize(testval)
         outval = serializer.deserialize(output)
         assert outval == testval
+
+    def test_marshal_builtin(self, serializer):
+        """Test that a single-argument unmarshaller can be used to unmarshal built-in types."""
+        serializer.register_custom_type(datetime, marshal_datetime, unmarshal_datetime)
+        dt = datetime(2016, 9, 9, 7, 21, 16, tzinfo=timezone.utc)
+        output = serializer.serialize(dt)
+        dt2 = serializer.deserialize(output)
+        assert dt == dt2
 
     def test_missing_getattr(self, serializer):
         testval = UnserializableSimpleType(1, 'a')

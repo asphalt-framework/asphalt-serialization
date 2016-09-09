@@ -1,7 +1,8 @@
+import inspect
 from collections import OrderedDict
 from json.decoder import JSONDecoder
 from json.encoder import JSONEncoder
-from typing import Dict, Any, Callable, Optional
+from typing import Dict, Any, Callable, Optional, Union
 
 from asphalt.core.util import resolve_reference, qualified_name
 from typeguard import check_argument_types
@@ -62,7 +63,8 @@ class JSONSerializer(CustomizableSerializer):
 
     def register_custom_type(
             self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
-            unmarshaller: Optional[Callable[[Any, Any], Any]] = default_unmarshaller, *,
+            unmarshaller: Union[Callable[[Any, Any], None],
+                                Callable[[Any], Any], None] = default_unmarshaller, *,
             typename: str = None) -> None:
         assert check_argument_types()
         typename = typename or qualified_name(cls)
@@ -73,6 +75,9 @@ class JSONSerializer(CustomizableSerializer):
             self._encoder = JSONEncoder(**self.encoder_options)
 
         if unmarshaller:
+            if len(inspect.signature(unmarshaller).parameters) == 1:
+                cls = None
+
             self._unmarshallers[typename] = cls, unmarshaller
             self.decoder_options['object_hook'] = self._custom_object_hook
             self._decoder = JSONDecoder(**self.decoder_options)
@@ -96,9 +101,12 @@ class JSONSerializer(CustomizableSerializer):
             except KeyError:
                 raise LookupError('no unmarshaller found for type "{}"'.format(typename)) from None
 
-            instance = cls.__new__(cls)
-            unmarshaller(instance, obj['state'])
-            return instance
+            if cls is not None:
+                instance = cls.__new__(cls)
+                unmarshaller(instance, obj['state'])
+                return instance
+            else:
+                return unmarshaller(obj['state'])
         else:
             return obj
 
