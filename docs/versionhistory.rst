@@ -3,7 +3,7 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
-**3.1.0**
+**3.1.0** (2016-09-25)
 
 - Allow parameterless unmarshaller callbacks that return a new instance of the target class
 - Switched YAML serializer to use ruamel.yaml instead of PyYAML
