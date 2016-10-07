@@ -1,8 +1,12 @@
 Asphalt-serialization documentation
 ===================================
 
-Asphalt-serialization provides support for serializing Python objects to bytestrings and
-deserializing bytestrings back to Python objects.
+.. include:: ../README.rst
+   :start-line: 7
+   :end-before: Project links
+
+Table of contents
+-----------------
 
 .. toctree::
    :maxdepth: 2
@@ -11,9 +15,5 @@ deserializing bytestrings back to Python objects.
    usage
    extending
    versionhistory
-
-
-Indices and tables
-==================
 
 * :ref:`API reference <modindex>`

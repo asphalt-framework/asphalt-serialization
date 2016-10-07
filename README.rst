@@ -19,20 +19,16 @@ Additional backends may be provided through third party plugins.
 Some serializers also provide hooks for safely (un)marshalling custom types and this mechanism
 can easily be plugged into a third party marshalling library.
 
-Project links
--------------
-
-* `Documentation`_
-* `Help and support`_
-* `Source code`_
-* `Issue tracker`_
-
 .. _CBOR: http://cbor.io/
 .. _JSON: http://wikipedia.org/wiki/JSON
 .. _msgpack: http://msgpack.org/
 .. _Pickle: https://docs.python.org/3/library/pickle.html
 .. _YAML: http://wikipedia.org/wiki/YAML
-.. _Documentation: http://asphalt-serialization.readthedocs.org/
-.. _Help and support: https://github.com/asphalt-framework/asphalt/wiki/Help-and-support
-.. _Source code: https://github.com/asphalt-framework/asphalt-serialization
-.. _Issue tracker: https://github.com/asphalt-framework/asphalt-serialization/issues
+
+Project links
+-------------
+
+* `Documentation <http://asphalt-serialization.readthedocs.org/>`_
+* `Help and support <https://github.com/asphalt-framework/asphalt/wiki/Help-and-support>`_
+* `Source code <https://github.com/asphalt-framework/asphalt-serialization>`_
+* `Issue tracker <https://github.com/asphalt-framework/asphalt-serialization/issues>`_
