@@ -17,11 +17,14 @@ def _encode_custom_type(encoder: cbor2.CBOREncoder, obj, fp, *, serializer: 'CBO
     obj_type = obj.__class__
     typename, marshaller = serializer.marshallers[obj_type]
     state = marshaller(obj)
-    buf = BytesIO()
-    encoder.encode(state, buf)
-    serialized_state = buf.getvalue()
-    return encoder.encode_semantic(serializer.custom_type_tag, [typename, serialized_state], fp,
-                                   disable_value_sharing=True)
+    if serializer.wrap_state:
+        buf = BytesIO()
+        encoder.encode(state, buf)
+        serialized_state = buf.getvalue()
+        return encoder.encode_semantic(serializer.custom_type_tag, [typename, serialized_state],
+                                       fp, disable_value_sharing=True)
+    else:
+        return encoder.encode(state, fp)
 
 
 def _decode_custom_type(decoder: cbor2.CBORDecoder, value, fp, shareable_index: Optional[int],
@@ -63,17 +66,23 @@ class CBORSerializer(CustomizableSerializer):
     :param encoder_options: keyword arguments passed to ``cbor2.dumps()``
     :param decoder_options: keyword arguments passed to ``cbor2.loads()``
     :param custom_type_tag: semantic tag used for marshalling of registered custom types
+    :param wrap_state: ``True`` to wrap the marshalled state in an implementation specific
+        manner which lets the deserializer automatically deserialize the objects back to
+        their proper types; ``False`` to serialize the state as-is without any identifying
+        metadata added to it
     """
 
-    __slots__ = ('encoder_options', 'decoder_options', 'custom_type_tag', 'marshallers',
-                 'unmarshallers')
+    __slots__ = ('encoder_options', 'decoder_options', 'custom_type_tag', 'wrap_state',
+                 'marshallers', 'unmarshallers')
 
     def __init__(self, encoder_options: Dict[str, Any] = None,
-                 decoder_options: Dict[str, Any] = None, custom_type_tag: int = 4554):
+                 decoder_options: Dict[str, Any] = None, custom_type_tag: int = 4554,
+                 wrap_state: bool = True):
         assert check_argument_types()
         self.encoder_options = encoder_options or {}
         self.decoder_options = decoder_options or {}
         self.custom_type_tag = custom_type_tag
+        self.wrap_state = wrap_state
         self.marshallers = OrderedDict()  # class -> (typename, marshaller function)
         self.unmarshallers = OrderedDict()  # typename -> (class, unmarshaller function)
 
@@ -96,7 +105,7 @@ class CBORSerializer(CustomizableSerializer):
             encoders = self.encoder_options.setdefault('encoders', {})
             encoders[cls] = partial(_encode_custom_type, serializer=self)
 
-        if unmarshaller:
+        if unmarshaller and self.wrap_state:
             if len(inspect.signature(unmarshaller).parameters) == 1:
                 cls = None
 

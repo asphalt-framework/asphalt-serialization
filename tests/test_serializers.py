@@ -73,14 +73,15 @@ def serializer_type(request):
 
 
 @pytest.fixture
-def serializer(serializer_type):
+def serializer(request, serializer_type):
+    kwargs = getattr(request, 'param', {})
     return {
         'cbor': CBORSerializer,
         'json': JSONSerializer,
         'msgpack': MsgpackSerializer,
         'pickle': PickleSerializer,
         'yaml': YAMLSerializer
-    }[serializer_type]()
+    }[serializer_type](**kwargs)
 
 
 @pytest.mark.parametrize('input', [
@@ -174,6 +175,14 @@ class TestCustomTypes:
         exc = pytest.raises(Exception, serializer.deserialize, serialized)
         assert str(exc.value).endswith(
             'no unmarshaller found for type "test_serializers.SimpleType"')
+
+    @pytest.mark.parametrize('serializer', [{'wrap_state': False}], indirect=['serializer'])
+    def test_nowrap(self, serializer):
+        serializer.register_custom_type(SimpleType)
+        testval = SimpleType(1, 'a')
+        serialized = serializer.serialize(testval)
+        deserialized = serializer.deserialize(serialized)
+        assert deserialized == {'value_a': 1, 'value_b': 'a'}
 
 
 def test_mime_types(serializer):

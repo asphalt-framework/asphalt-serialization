@@ -116,6 +116,21 @@ The callbacks can be a natural part of the class too if you want::
  of type :class:`~asphalt.serialization.api.CustomizableSerializer` instead of
  :class:`~asphalt.serialization.api.Serializer`.
 
+Disabling the default wrapping of marshalled custom types
+---------------------------------------------------------
+
+When you register a custom type with a serializer, it by default wraps its marshalled instances
+during serialization in a way specific to each serializer in order to include the type name
+necessary for automatic deserialization. For example, the ``json`` serializer wraps the state of a
+marshalled object in a JSON object like
+``{"__type__": "MyTypeName", "state": {"some_attribute": "some_value"}}``.
+
+In situations where you need to serialize objects for a recipient that does not understand this
+special wrapping, you can forego the wrapping step by passing the ``wrap_state=False`` option to
+the serializer. Doing so will cause the naked state object to be directly serialized.
+Of course, this will disable the automatic deserialization, since the required metadata is no
+longer available.
+
 Serializing built-in custom types
 ---------------------------------
 

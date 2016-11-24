@@ -11,6 +11,10 @@ from asphalt.serialization.api import CustomizableSerializer
 from asphalt.serialization.marshalling import default_marshaller, default_unmarshaller
 
 
+def default_wrapper(typename: str, state, *, type_key: str = '__type__'):
+    return {type_key: typename, 'state': state}
+
+
 class JSONSerializer(CustomizableSerializer):
     """
     Serializes objects using JSON (JavaScript Object Notation).
@@ -28,17 +32,22 @@ class JSONSerializer(CustomizableSerializer):
     :param decoder_options: keyword arguments passed to :class:`~json.JSONDecoder`
     :param encoding: the text encoding to use for converting to and from bytes
     :param custom_type_key: magic key that identifies custom types in a JSON object
+    :param wrap_state: ``True`` to wrap the marshalled state in an implementation specific
+        manner which lets the deserializer automatically deserialize the objects back to
+        their proper types; ``False`` to serialize the state as-is without any identifying
+        metadata added to it
     """
 
-    __slots__ = ('encoder_options', 'decoder_options', 'encoding', 'custom_type_key', '_encoder',
-                 '_decoder', '_marshallers', '_unmarshallers')
+    __slots__ = ('encoder_options', 'decoder_options', 'encoding', 'custom_type_key', 'wrap_state',
+                 '_encoder', '_decoder', '_marshallers', '_unmarshallers')
 
     def __init__(self, encoder_options: Dict[str, Any] = None,
                  decoder_options: Dict[str, Any] = None, encoding: str = 'utf-8',
-                 custom_type_key: str = '__type__'):
+                 custom_type_key: str = '__type__', wrap_state: bool = True):
         assert check_argument_types()
         self.encoding = encoding
         self.custom_type_key = custom_type_key
+        self.wrap_state = wrap_state
         self._marshallers = OrderedDict()  # class -> (typename, marshaller function)
         self._unmarshallers = OrderedDict()  # typename -> (class, unmarshaller function)
 
@@ -65,7 +74,7 @@ class JSONSerializer(CustomizableSerializer):
             self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
             unmarshaller: Union[Callable[[Any, Any], None],
                                 Callable[[Any], Any], None] = default_unmarshaller, *,
-            typename: str = None) -> None:
+            typename: str = None, wrap_state: bool = True) -> None:
         assert check_argument_types()
         typename = typename or qualified_name(cls)
 
@@ -74,7 +83,7 @@ class JSONSerializer(CustomizableSerializer):
             self.encoder_options['default'] = self._default_encoder
             self._encoder = JSONEncoder(**self.encoder_options)
 
-        if unmarshaller:
+        if unmarshaller and self.wrap_state:
             if len(inspect.signature(unmarshaller).parameters) == 1:
                 cls = None
 
@@ -91,7 +100,10 @@ class JSONSerializer(CustomizableSerializer):
                               .format(qualified_name(obj_type))) from None
 
         state = marshaller(obj)
-        return {self.custom_type_key: typename, 'state': state}
+        if self.wrap_state:
+            return {self.custom_type_key: typename, 'state': state}
+        else:
+            return state
 
     def _custom_object_hook(self, obj: Dict[str, Any]):
         if len(obj) == 2 and self.custom_type_key in obj:

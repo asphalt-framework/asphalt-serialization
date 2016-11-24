@@ -3,6 +3,11 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
+**3.2.0** (2016-11-24)
+
+- Added the ability to skip wrapping custom marshalled objects (by setting ``wrap_state=False`` in
+  any of the customizable serializers)
+
 **3.1.0** (2016-09-25)
 
 - Allow parameterless unmarshaller callbacks that return a new instance of the target class

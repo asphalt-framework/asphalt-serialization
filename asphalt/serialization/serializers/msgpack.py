@@ -31,15 +31,21 @@ class MsgpackSerializer(CustomizableSerializer):
 
     :param packer_options: keyword arguments passed to :func:`msgpack.packb`
     :param unpacker_options: keyword arguments passed to :func:`msgpack.unpackb`
+    :param wrap_state: ``True`` to wrap the marshalled state in an implementation specific
+        manner which lets the deserializer automatically deserialize the objects back to
+        their proper types; ``False`` to serialize the state as-is without any identifying
+        metadata added to it
     """
 
-    __slots__ = ('packer_options', 'unpacker_options', 'custom_type_code', '_marshallers',
-                 '_unmarshallers')
+    __slots__ = ('packer_options', 'unpacker_options', 'custom_type_code', 'wrap_state',
+                 '_marshallers', '_unmarshallers')
 
     def __init__(self, packer_options: Dict[str, Any] = None,
-                 unpacker_options: Dict[str, Any] = None, custom_type_code: int = 119):
+                 unpacker_options: Dict[str, Any] = None, custom_type_code: int = 119,
+                 wrap_state: bool = True):
         assert check_argument_types()
         self.custom_type_code = custom_type_code
+        self.wrap_state = wrap_state
         self._marshallers = {}
         self._unmarshallers = {}
 
@@ -67,7 +73,7 @@ class MsgpackSerializer(CustomizableSerializer):
             self._marshallers[cls] = typename, marshaller
             self.packer_options['default'] = self._default_encoder
 
-        if unmarshaller:
+        if unmarshaller and self.wrap_state:
             if len(inspect.signature(unmarshaller).parameters) == 1:
                 cls = None
 
@@ -83,8 +89,11 @@ class MsgpackSerializer(CustomizableSerializer):
                               .format(qualified_name(obj_type))) from None
 
         state = marshaller(obj)
-        data = typename + b':' + self.serialize(state)
-        return ExtType(self.custom_type_code, data)
+        if self.wrap_state:
+            data = typename + b':' + self.serialize(state)
+            return ExtType(self.custom_type_code, data)
+        else:
+            return state
 
     def _custom_object_hook(self, code: int, data: bytes):
         if code == self.custom_type_code:
