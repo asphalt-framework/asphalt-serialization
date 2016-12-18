@@ -36,7 +36,13 @@ setup(
     extras_require={
         'msgpack': 'msgpack-python >= 0.4.6',
         'cbor': 'cbor2 ~= 3.0',
-        'yaml': 'ruamel.yaml >= 0.12'
+        'yaml': 'ruamel.yaml >= 0.12',
+        'testing': [
+            'pytest',
+            'pytest-cov',
+            'pytest-catchlog',
+            'pytest-asyncio >= 0.5.0'
+        ]
     },
     entry_points={
         'asphalt.components': [
