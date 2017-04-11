@@ -1,7 +1,7 @@
 import inspect
 from typing import Dict, Any, Callable, Optional, Union
 
-from asphalt.core.util import qualified_name
+from asphalt.core import qualified_name
 from msgpack import packb, unpackb, ExtType
 from typeguard import check_argument_types
 

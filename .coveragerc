@@ -1,6 +1,0 @@
-[run]
-source = asphalt.serialization
-branch = 1
-
-[report]
-show_missing = true

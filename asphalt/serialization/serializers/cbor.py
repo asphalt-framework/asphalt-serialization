@@ -5,7 +5,7 @@ from io import BytesIO
 from typing import Dict, Any, Callable, Optional, Union
 
 import cbor2
-from asphalt.core.util import qualified_name
+from asphalt.core import qualified_name
 from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer

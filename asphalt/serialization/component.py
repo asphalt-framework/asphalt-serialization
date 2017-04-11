@@ -6,65 +6,54 @@ from typeguard import check_argument_types
 from asphalt.core.component import Component, Context, PluginContainer, merge_config
 from asphalt.serialization.api import Serializer, CustomizableSerializer
 
-serializer_backends = PluginContainer('asphalt.serialization.serializers', Serializer)
+serializer_types = PluginContainer('asphalt.serialization.serializers', Serializer)
 logger = logging.getLogger(__name__)
 
 
 class SerializationComponent(Component):
     """
-    Publishes one or more serializer resources.
+    Creates one or more serializer resources.
 
-    Every serializer resource will be published using the following types:
+    Every serializer resource will be available in the context as the following types:
 
     * :class:`~asphalt.serialization.api.Serializer`
     * :class:`~asphalt.serialization.api.CustomizableSerializer` (if the serializer implements it)
-    * its actual class
+    * its actual type
 
-    If more than one serializer is to be configured, provide a ``serializers`` argument as a
-    dictionary where the key is the resource name and the value is a dictionary of keyword
-    arguments to :meth:`configure_serializer`. Otherwise, directly pass those keyword arguments to
-    the component constructor itself.
+    Serializers can be configured in two ways:
+    
+    #. a single serializer, with configuration supplied directly as keyword arguments to this
+        component's constructor (with the resource name being ``default`` and the context attribute
+        matching the backend name)
+    #. multiple serializers, by providing the ``serializers`` option where each key is the resource
+        name and each value is a dictionary containing that serializer's configuration (with the
+        context attribute matching the resource name by default)
 
-    If ``serializers`` is defined, any extra keyword arguments are used as default values for
-    :meth:`configure_serializer` for all serializers (:func:`~asphalt.core.util.merge_config` is
-    used to merge the per-serializer arguments with the defaults). Otherwise, a single serializer
-    is created based on the provided default arguments, with ``context_attr`` defaulting to the
-    name of the chosen backend.
+    Each serializer configuration has two special options that are not passed to the constructor of
+    the backend class:
+    
+    * backend: entry point name of the serializer backend class (required)
+    * context_attr: name of the context attribute of the serializer resource
 
-    :param serializers: a dictionary of resource name ⭢ :meth:`configure_serializer` arguments
-    :param default_serializer_args: default values for omitted :meth:`configure_serializer`
-        arguments
+    :param serializers: a dictionary of resource name ⭢ constructor arguments for the chosen
+        backend class
+    :param default_serializer_args: default values for constructor keyword arguments
     """
 
     def __init__(self, serializers: Dict[str, Dict[str, Any]] = None, **default_serializer_args):
         assert check_argument_types()
         if not serializers:
-            default_serializer_args.setdefault('context_attr',
-                                               default_serializer_args.get('backend'))
+            default_serializer_args.setdefault(
+                'context_attr', default_serializer_args.get('backend'))
             serializers = {'default': default_serializer_args}
 
         self.serializers = []
         for resource_name, config in serializers.items():
             config = merge_config(default_serializer_args, config or {})
-            config.setdefault('backend', resource_name)
-            config.setdefault('context_attr', resource_name)
-            context_attr, serializer = self.configure_serializer(**config)
+            type_ = config.pop('backend', resource_name)
+            context_attr = config.pop('context_attr', resource_name)
+            serializer = serializer_types.create_object(type_, **config)
             self.serializers.append((resource_name, context_attr, serializer))
-
-    @classmethod
-    def configure_serializer(cls, context_attr: str, backend: str, **backend_args):
-        """
-        Configure a serializer.
-
-        :param context_attr: context attribute of the serializer (if omitted, the resource name
-            will be used instead)
-        :param backend: entry point name used to look up the backend class (if omitted, the
-            resource name will be used instead)
-        :param backend_args: keyword arguments passed to the constructor of the backend class
-
-        """
-        assert check_argument_types()
-        return context_attr, serializer_backends.create_object(backend, **backend_args)
 
     async def start(self, ctx: Context):
         for resource_name, context_attr, serializer in self.serializers:
@@ -72,6 +61,6 @@ class SerializationComponent(Component):
             if isinstance(serializer, CustomizableSerializer):
                 types.append(CustomizableSerializer)
 
-            ctx.publish_resource(serializer, resource_name, context_attr, types=types)
+            ctx.add_resource(serializer, resource_name, context_attr, types=types)
             logger.info('Configured serializer (%s / ctx.%s; type=%s)', resource_name,
                         context_attr, serializer.mimetype)

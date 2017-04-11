@@ -4,7 +4,7 @@ from json.decoder import JSONDecoder
 from json.encoder import JSONEncoder
 from typing import Dict, Any, Callable, Optional, Union
 
-from asphalt.core.util import resolve_reference, qualified_name
+from asphalt.core import resolve_reference, qualified_name
 from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer

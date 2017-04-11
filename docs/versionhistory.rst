@@ -3,6 +3,10 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
+**4.0.0**
+
+- **BACKWARD INCOMPATIBLE** Migrated to Asphalt 3.0
+
 **3.2.0** (2016-11-24)
 
 - Added the ability to skip wrapping custom marshalled objects (by setting ``wrap_state=False`` in
