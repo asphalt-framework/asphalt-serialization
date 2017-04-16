@@ -36,7 +36,7 @@ setup(
     ],
     extras_require={
         'msgpack': 'msgpack-python >= 0.4.6',
-        'cbor': 'cbor2 ~= 3.0',
+        'cbor': 'cbor2 ~= 4.0',
         'yaml': 'ruamel.yaml >= 0.12',
         'testing': [
             'pytest',

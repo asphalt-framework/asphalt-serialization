@@ -1,12 +1,58 @@
-import inspect
-from typing import Dict, Any, Callable, Optional, Union
+from typing import Dict, Any, Optional, Union, Tuple
 
-from asphalt.core import qualified_name
+from asphalt.core import resolve_reference
 from msgpack import packb, unpackb, ExtType
 from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer
-from asphalt.serialization.marshalling import default_marshaller, default_unmarshaller
+from asphalt.serialization.object_codec import DefaultCustomTypeCodec
+
+
+class MsgpackTypeCodec(DefaultCustomTypeCodec):
+    """
+    Default custom type codec implementation for :class:`~.MsgpackSerializer`.
+
+    Wraps marshalled state in either msgpack's ExtType objects (the default) or dicts (with
+    ``type_code=None``).
+
+    :param type_code: msgpack type code to use, or ``None`` to use JSON compatible dict-based
+        wrapping
+    """
+
+    def __init__(self, type_code: Optional[int] = 119, **kwargs):
+        assert check_argument_types()
+        super().__init__(**kwargs)
+        self.type_code = type_code
+
+        if type_code:
+            self.wrap_callback = self.wrap_state_ext_type
+            self.unwrap_callback = self.unwrap_state_ext_type
+
+    def register_object_decoder_hook(self, serializer: 'MsgpackSerializer') -> None:
+        self.serializer = serializer
+        serializer.packer_options['default'] = self.default_encoder
+
+    def register_object_encoder_hook(self, serializer: 'MsgpackSerializer') -> None:
+        self.serializer = serializer
+        if self.type_code:
+            serializer.unpacker_options['ext_hook'] = self.ext_hook
+        else:
+            serializer.unpacker_options['object_hook'] = self.default_decoder
+
+    def ext_hook(self, code: int, data: bytes):
+        if code == self.type_code:
+            return self.default_decoder(data)
+        else:
+            return ExtType(code, data)
+
+    def wrap_state_ext_type(self, typename: str, state):
+        data = typename.encode('utf-8') + b':' + self.serializer.serialize(state)
+        return ExtType(self.type_code, data)
+
+    def unwrap_state_ext_type(
+            self, wrapped_state: bytes) -> Union[Tuple[str, Any], Tuple[None, None]]:
+        typename, payload = wrapped_state.split(b':', 1)
+        return typename.decode('utf-8'), self.serializer.deserialize(payload)
 
 
 class MsgpackSerializer(CustomizableSerializer):
@@ -31,27 +77,20 @@ class MsgpackSerializer(CustomizableSerializer):
 
     :param packer_options: keyword arguments passed to :func:`msgpack.packb`
     :param unpacker_options: keyword arguments passed to :func:`msgpack.unpackb`
-    :param wrap_state: ``True`` to wrap the marshalled state in an implementation specific
-        manner which lets the deserializer automatically deserialize the objects back to
-        their proper types; ``False`` to serialize the state as-is without any identifying
-        metadata added to it
+    :param custom_type_codec: wrapper to use to wrap custom types after marshalling, or ``None`` to
+        return marshalled objects as-is
     """
 
-    __slots__ = ('packer_options', 'unpacker_options', 'custom_type_code', 'wrap_state',
-                 '_marshallers', '_unmarshallers')
+    __slots__ = ('packer_options', 'unpacker_options', 'custom_type_codec', '_marshallers',
+                 '_unmarshallers')
 
-    def __init__(self, packer_options: Dict[str, Any] = None,
-                 unpacker_options: Dict[str, Any] = None, custom_type_code: int = 119,
-                 wrap_state: bool = True):
+    def __init__(
+            self, packer_options: Dict[str, Any] = None, unpacker_options: Dict[str, Any] = None,
+            custom_type_codec: Union[MsgpackTypeCodec, str] = None):
         assert check_argument_types()
-        self.custom_type_code = custom_type_code
-        self.wrap_state = wrap_state
-        self._marshallers = {}
-        self._unmarshallers = {}
-
+        super().__init__(resolve_reference(custom_type_codec) or MsgpackTypeCodec())
         self.packer_options = packer_options or {}
         self.packer_options.setdefault('use_bin_type', True)
-
         self.unpacker_options = unpacker_options or {}
         self.unpacker_options.setdefault('encoding', 'utf-8')
 
@@ -60,59 +99,6 @@ class MsgpackSerializer(CustomizableSerializer):
 
     def deserialize(self, payload: bytes):
         return unpackb(payload, **self.unpacker_options)
-
-    def register_custom_type(
-            self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
-            unmarshaller: Union[Callable[[Any, Any], None],
-                                Callable[[Any], Any], None] = default_unmarshaller, *,
-            typename: str = None) -> None:
-        assert check_argument_types()
-        typename = (typename or qualified_name(cls)).encode('utf-8')
-
-        if marshaller:
-            self._marshallers[cls] = typename, marshaller
-            self.packer_options['default'] = self._default_encoder
-
-        if unmarshaller and self.wrap_state:
-            if len(inspect.signature(unmarshaller).parameters) == 1:
-                cls = None
-
-            self._unmarshallers[typename] = cls, unmarshaller
-            self.unpacker_options['ext_hook'] = self._custom_object_hook
-
-    def _default_encoder(self, obj):
-        obj_type = obj.__class__
-        try:
-            typename, marshaller = self._marshallers[obj_type]
-        except KeyError:
-            raise LookupError('no marshaller found for type "{}"'
-                              .format(qualified_name(obj_type))) from None
-
-        state = marshaller(obj)
-        if self.wrap_state:
-            data = typename + b':' + self.serialize(state)
-            return ExtType(self.custom_type_code, data)
-        else:
-            return state
-
-    def _custom_object_hook(self, code: int, data: bytes):
-        if code == self.custom_type_code:
-            typename, payload = data.split(b':', 1)
-            state = self.deserialize(payload)
-            try:
-                cls, unmarshaller = self._unmarshallers[typename]
-            except KeyError:
-                raise LookupError('no unmarshaller found for type "{}"'
-                                  .format(typename.decode('utf-8'))) from None
-
-            if cls is not None:
-                instance = cls.__new__(cls)
-                unmarshaller(instance, state)
-                return instance
-            else:
-                return unmarshaller(state)
-        else:
-            return ExtType(code, data)
 
     @property
     def mimetype(self):

@@ -1,9 +1,9 @@
 import logging
 from typing import Dict, Any
 
+from asphalt.core import Component, Context, PluginContainer, merge_config
 from typeguard import check_argument_types
 
-from asphalt.core.component import Component, Context, PluginContainer, merge_config
 from asphalt.serialization.api import Serializer, CustomizableSerializer
 
 serializer_types = PluginContainer('asphalt.serialization.serializers', Serializer)
@@ -21,7 +21,7 @@ class SerializationComponent(Component):
     * its actual type
 
     Serializers can be configured in two ways:
-    
+
     #. a single serializer, with configuration supplied directly as keyword arguments to this
         component's constructor (with the resource name being ``default`` and the context attribute
         matching the backend name)
@@ -31,7 +31,7 @@ class SerializationComponent(Component):
 
     Each serializer configuration has two special options that are not passed to the constructor of
     the backend class:
-    
+
     * backend: entry point name of the serializer backend class (required)
     * context_attr: name of the context attribute of the serializer resource
 

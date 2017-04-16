@@ -3,9 +3,13 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
-**4.0.0**
+**4.0.0** (2017-04-24)
 
 - **BACKWARD INCOMPATIBLE** Migrated to Asphalt 3.0
+- **BACKWARD INCOMPATIBLE** Upgraded cbor2 dependency to v4
+- **BACKWARD INCOMPATIBLE** Improved the ability to customize the serialization of custom types in
+  serializers implementing the ``CustomizableSerializer`` interface by specifying a value for the
+  ``custom_type_codec`` option. This replaces the ``custom_type_key`` and ``wrap_state`` options.
 
 **3.2.0** (2016-11-24)
 

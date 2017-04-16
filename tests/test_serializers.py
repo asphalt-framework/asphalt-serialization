@@ -1,13 +1,15 @@
 import re
 from datetime import datetime, timezone
+from functools import partial
 from types import SimpleNamespace
 
 import pytest
+from cbor2 import CBORTag
 from msgpack import ExtType
 
-from asphalt.serialization.serializers.cbor import CBORSerializer
+from asphalt.serialization.serializers.cbor import CBORSerializer, CBORTypeCodec
 from asphalt.serialization.serializers.json import JSONSerializer
-from asphalt.serialization.serializers.msgpack import MsgpackSerializer
+from asphalt.serialization.serializers.msgpack import MsgpackSerializer, MsgpackTypeCodec
 from asphalt.serialization.serializers.pickle import PickleSerializer
 from asphalt.serialization.serializers.yaml import YAMLSerializer
 
@@ -76,7 +78,7 @@ def serializer_type(request):
 def serializer(request, serializer_type):
     kwargs = getattr(request, 'param', {})
     return {
-        'cbor': CBORSerializer,
+        'cbor': partial(CBORSerializer, encoder_options=dict(value_sharing=True)),
         'json': JSONSerializer,
         'msgpack': MsgpackSerializer,
         'pickle': PickleSerializer,
@@ -146,15 +148,15 @@ class TestCustomTypes:
         testval = UnserializableSimpleType(1, 'a')
         serializer.register_custom_type(UnserializableSimpleType)
         exc = pytest.raises(TypeError, serializer.serialize, testval)
-        assert str(exc.value) == ("'test_serializers.UnserializableSimpleType' has no __dict__ "
-                                  "attribute and does not implement __getstate__()")
+        exc.match("'test_serializers.UnserializableSimpleType' has no __dict__ attribute and does "
+                  "not implement __getstate__()")
 
     def test_missing_setattr(self, serializer):
         testval = UnserializableSimpleType(1, 'a')
         serializer.register_custom_type(UnserializableSimpleType, lambda instance: {})
         serialized = serializer.serialize(testval)
         exc = pytest.raises(Exception, serializer.deserialize, serialized)
-        assert str(exc.value).endswith(
+        exc.match(
             "'test_serializers.UnserializableSimpleType' has no __dict__ attribute and does not "
             "implement __setstate__()")
 
@@ -162,10 +164,7 @@ class TestCustomTypes:
         serializer.register_custom_type(SlottedSimpleType)
         testval = SimpleType(1, 'a')
         exc = pytest.raises(Exception, serializer.serialize, testval)
-        if serializer_type == 'cbor':
-            assert str(exc.value).endswith('cannot serialize type SimpleType')
-        else:
-            assert str(exc.value) == 'no marshaller found for type "test_serializers.SimpleType"'
+        exc.match('no marshaller found for type "test_serializers.SimpleType"')
 
     def test_missing_unmarshaller(self, serializer):
         serializer.register_custom_type(SlottedSimpleType)
@@ -173,12 +172,10 @@ class TestCustomTypes:
         testval = SimpleType(1, 'a')
         serialized = serializer.serialize(testval)
         exc = pytest.raises(Exception, serializer.deserialize, serialized)
-        assert str(exc.value).endswith(
-            'no unmarshaller found for type "test_serializers.SimpleType"')
+        exc.match('no unmarshaller found for type "test_serializers.SimpleType"')
 
-    @pytest.mark.parametrize('serializer', [{'wrap_state': False}], indirect=['serializer'])
     def test_nowrap(self, serializer):
-        serializer.register_custom_type(SimpleType)
+        serializer.register_custom_type(SimpleType, wrap_state=False)
         testval = SimpleType(1, 'a')
         serialized = serializer.serialize(testval)
         deserialized = serializer.deserialize(serialized)
@@ -220,3 +217,49 @@ def test_cbor_self_referential_objects(serializer):
     assert obj.val == 1
     assert obj.next.val == 2
     assert obj.next.previous is obj
+
+
+@pytest.mark.parametrize('serializer_type', ['cbor'])
+def test_cbor_oneshot_unmarshal(serializer):
+    def unmarshal_simple(state):
+        return SimpleType(**state)
+
+    obj = SimpleType(1, 2)
+    serializer.register_custom_type(SimpleType, unmarshaller=unmarshal_simple)
+    data = serializer.serialize(obj)
+    obj = serializer.deserialize(data)
+    assert obj.value_a == 1
+    assert obj.value_b == 2
+
+
+@pytest.mark.parametrize('serializer_type', ['cbor'])
+def test_cbor_raw_tag(serializer):
+    tag = CBORTag(6000, 'Hello')
+    serializer.register_custom_type(SimpleType)
+    data = serializer.serialize(tag)
+    tag = serializer.deserialize(data)
+    assert tag.tag == 6000
+    assert tag.value == 'Hello'
+
+
+class TestObjectHook:
+    @pytest.fixture(params=['msgpack', 'cbor'])
+    def serializer(self, request):
+        if request.param == 'msgpack':
+            codec = MsgpackTypeCodec(type_code=None)
+            return MsgpackSerializer(custom_type_codec=codec)
+        else:
+            codec = CBORTypeCodec(type_tag=None)
+            return CBORSerializer(custom_type_codec=codec)
+
+    def test_object_hook(self, serializer):
+        value1 = SimpleNamespace()
+        value1.val = 1
+        value1.next = value2 = SimpleNamespace()
+        value2.val = 2
+
+        serializer.register_custom_type(SimpleNamespace, typename='Simple')
+        data = serializer.serialize(value1)
+        obj = serializer.deserialize(data)
+        assert obj.val == 1
+        assert obj.next.val == 2

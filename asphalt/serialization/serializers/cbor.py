@@ -1,52 +1,87 @@
-import inspect
-from collections import OrderedDict
-from functools import partial
-from io import BytesIO
-from typing import Dict, Any, Callable, Optional, Union
+from typing import Dict, Any, Optional, Union
 
 import cbor2
-from asphalt.core import qualified_name
+from asphalt.core import qualified_name, resolve_reference
 from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer
-from asphalt.serialization.marshalling import default_marshaller, default_unmarshaller
+from asphalt.serialization.object_codec import DefaultCustomTypeCodec
 
 
-@cbor2.shareable_encoder
-def _encode_custom_type(encoder: cbor2.CBOREncoder, obj, fp, *, serializer: 'CBORSerializer'):
-    obj_type = obj.__class__
-    typename, marshaller = serializer.marshallers[obj_type]
-    state = marshaller(obj)
-    if serializer.wrap_state:
-        buf = BytesIO()
-        encoder.encode(state, buf)
-        serialized_state = buf.getvalue()
-        return encoder.encode_semantic(serializer.custom_type_tag, [typename, serialized_state],
-                                       fp, disable_value_sharing=True)
-    else:
-        return encoder.encode(state, fp)
+class CBORTypeCodec(DefaultCustomTypeCodec):
+    """
+    Default custom type codec implementation for :class:`~.CBORSerializer`.
 
+    Wraps marshalled state in either CBORTag objects (the default) or dicts (with
+    ``type_tag=None``).
 
-def _decode_custom_type(decoder: cbor2.CBORDecoder, value, fp, shareable_index: Optional[int],
-                        *, serializer: 'CBORSerializer'):
-    typename, serialized_state = value
-    try:
-        cls, unmarshaller = serializer.unmarshallers[typename]
-    except KeyError:
-        raise LookupError('no unmarshaller found for type "{}"'.format(typename)) from None
+    :param type_tag: CBOR tag number to use, or ``None`` to use JSON compatible dict-based
+        wrapping
 
-    buf = BytesIO(serialized_state)
-    if cls is not None:
-        instance = cls.__new__(cls)
-        if shareable_index is not None:
-            decoder.shareables[shareable_index] = instance
+    .. note:: Custom wrapping hooks are ignored when CBORTags are used.
+    """
 
-        state = decoder.decode(buf)
-        unmarshaller(instance, state)
-        return instance
-    else:
-        state = decoder.decode(buf)
-        return unmarshaller(state)
+    def __init__(self, type_tag: Optional[int] = 4554, **kwargs):
+        super().__init__(**kwargs)
+        self.type_tag = type_tag
+
+    def register_object_encoder_hook(self, serializer: 'CBORSerializer') -> None:
+        self.serializer = serializer
+        if self.type_tag:
+            serializer.encoder_options['default'] = cbor2.shareable_encoder(self.cbor_tag_encoder)
+        else:
+            serializer.encoder_options['default'] = self.cbor_default_encoder
+
+    def register_object_decoder_hook(self, serializer: 'CBORSerializer') -> None:
+        self.serializer = serializer
+        if self.type_tag:
+            serializer.decoder_options['tag_hook'] = self.cbor_tag_decoder
+        else:
+            serializer.decoder_options['object_hook'] = self.cbor_default_decoder
+
+    def cbor_tag_encoder(self, encoder: cbor2.CBOREncoder, obj):
+        try:
+            typename, marshaller, wrap_state = self.serializer.marshallers[obj.__class__]
+        except KeyError:
+            raise LookupError('no marshaller found for type "{}"'
+                              .format(qualified_name(type(obj)))) from None
+
+        marshalled_state = marshaller(obj)
+        if wrap_state:
+            serialized_state = encoder.encode_to_bytes(marshalled_state)
+            wrapped_state = [typename, serialized_state]
+            with encoder.disable_value_sharing():
+                encoder.encode(cbor2.CBORTag(self.type_tag, wrapped_state))
+        else:
+            encoder.encode(marshalled_state)
+
+    def cbor_tag_decoder(self, decoder: cbor2.CBORDecoder, tag: cbor2.CBORTag,
+                         shareable_index: int = None):
+        if tag.tag != self.type_tag:
+            return tag
+
+        typename, serialized_state = tag.value
+        try:
+            cls, unmarshaller = self.serializer.unmarshallers[typename]
+        except KeyError:
+            raise LookupError('no unmarshaller found for type "{}"'.format(typename)) from None
+
+        if cls is not None:
+            instance = cls.__new__(cls)
+            decoder.set_shareable(shareable_index, instance)
+            marshalled_state = decoder.decode_from_bytes(serialized_state)
+            unmarshaller(instance, marshalled_state)
+            return instance
+        else:
+            marshalled_state = decoder.decode_from_bytes(serialized_state)
+            return unmarshaller(marshalled_state)
+
+    def cbor_default_encoder(self, encoder: cbor2.CBOREncoder, obj):
+        encoded = self.default_encoder(obj)
+        encoder.encode(encoded)
+
+    def cbor_default_decoder(self, decoder: cbor2.CBORDecoder, obj):
+        return self.default_decoder(obj)
 
 
 class CBORSerializer(CustomizableSerializer):
@@ -54,8 +89,7 @@ class CBORSerializer(CustomizableSerializer):
     Serializes objects using CBOR (Concise Binary Object Representation).
 
     To use this serializer backend, the ``cbor2`` library must be installed.
-    A convenient way to do this is to install ``asphalt-serialization`` with the ``cbor``
-    extra:
+    A convenient way to do this is to install ``asphalt-serialization`` with the ``cbor`` extra:
 
     .. code-block:: shell
 
@@ -65,53 +99,26 @@ class CBORSerializer(CustomizableSerializer):
 
     :param encoder_options: keyword arguments passed to ``cbor2.dumps()``
     :param decoder_options: keyword arguments passed to ``cbor2.loads()``
-    :param custom_type_tag: semantic tag used for marshalling of registered custom types
-    :param wrap_state: ``True`` to wrap the marshalled state in an implementation specific
-        manner which lets the deserializer automatically deserialize the objects back to
-        their proper types; ``False`` to serialize the state as-is without any identifying
-        metadata added to it
+    :param custom_type_codec: wrapper to use to wrap custom types after marshalling, or ``None`` to
+        return marshalled objects as-is
     """
 
-    __slots__ = ('encoder_options', 'decoder_options', 'custom_type_tag', 'wrap_state',
-                 'marshallers', 'unmarshallers')
+    __slots__ = ('encoder_options', 'decoder_options', 'custom_type_codec', 'marshallers',
+                 'unmarshallers')
 
     def __init__(self, encoder_options: Dict[str, Any] = None,
-                 decoder_options: Dict[str, Any] = None, custom_type_tag: int = 4554,
-                 wrap_state: bool = True):
+                 decoder_options: Dict[str, Any] = None,
+                 custom_type_codec: Union[CBORTypeCodec, str] = None):
         assert check_argument_types()
+        super().__init__(resolve_reference(custom_type_codec) or CBORTypeCodec())
         self.encoder_options = encoder_options or {}
         self.decoder_options = decoder_options or {}
-        self.custom_type_tag = custom_type_tag
-        self.wrap_state = wrap_state
-        self.marshallers = OrderedDict()  # class -> (typename, marshaller function)
-        self.unmarshallers = OrderedDict()  # typename -> (class, unmarshaller function)
 
     def serialize(self, obj) -> bytes:
         return cbor2.dumps(obj, **self.encoder_options)
 
     def deserialize(self, payload: bytes):
         return cbor2.loads(payload, **self.decoder_options)
-
-    def register_custom_type(
-            self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
-            unmarshaller: Union[Callable[[Any, Any], None],
-                                Callable[[Any], Any], None] = default_unmarshaller, *,
-            typename: str = None) -> None:
-        assert check_argument_types()
-        typename = typename or qualified_name(cls)
-
-        if marshaller:
-            self.marshallers[cls] = typename, marshaller
-            encoders = self.encoder_options.setdefault('encoders', {})
-            encoders[cls] = partial(_encode_custom_type, serializer=self)
-
-        if unmarshaller and self.wrap_state:
-            if len(inspect.signature(unmarshaller).parameters) == 1:
-                cls = None
-
-            self.unmarshallers[typename] = cls, unmarshaller
-            decoders = self.decoder_options.setdefault('semantic_decoders', {})
-            decoders[self.custom_type_tag] = partial(_decode_custom_type, serializer=self)
 
     @property
     def mimetype(self):

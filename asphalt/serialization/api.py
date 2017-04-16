@@ -1,5 +1,8 @@
 from abc import ABCMeta, abstractmethod
-from typing import Callable, Any, Optional, Union
+from inspect import signature
+from typing import Callable, Any, Optional, Union, Dict  # noqa
+
+from typeguard import check_argument_types, qualified_name
 
 from asphalt.serialization.marshalling import default_marshaller, default_unmarshaller
 
@@ -41,16 +44,25 @@ class CustomizableSerializer(Serializer):
     """
     This abstract class defines an interface for registering custom types on a serializer so that
     the the serializer can be extended to (de)serialize a broader array of classes.
+
+    :ivar marshallers: a mapping of class -> (typename, marshaller callback)
+    :vartype marshallers: Dict[str, Callable]
+    :ivar unmarshallers: a mapping of class -> (typename, unmarshaller callback)
+    :vartype unmarshallers: Dict[str, Callable]
     """
 
-    __slots__ = ()
+    __slots__ = ('custom_type_codec', 'marshallers', 'unmarshallers')
 
-    @abstractmethod
+    def __init__(self, custom_type_codec: 'CustomTypeCodec'):
+        self.custom_type_codec = custom_type_codec
+        self.marshallers = {}  # type: Dict[str, Callable]
+        self.unmarshallers = {}  # type: Dict[str, Callable]
+
     def register_custom_type(
             self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
             unmarshaller: Union[Callable[[Any, Any], None],
                                 Callable[[Any], Any], None] = default_unmarshaller, *,
-            typename: str = None) -> None:
+            typename: str = None, wrap_state: bool = True) -> None:
         """
         Register a marshaller and/or unmarshaller for the given class.
 
@@ -70,4 +82,43 @@ class CustomizableSerializer(Serializer):
             * takes a state object and returns a new instance of ``cls``
         :param typename: a unique identifier for the type (defaults to the ``module:varname``
             reference to the class)
+        :param wrap_state: ``True`` to wrap the marshalled state before serialization so that it
+            can be recognized later for unmarshalling, ``False`` to serialize it as is
+
+        """
+        assert check_argument_types()
+        typename = typename or qualified_name(cls)
+
+        if marshaller:
+            self.marshallers[cls] = typename, marshaller, wrap_state
+            self.custom_type_codec.register_object_encoder_hook(self)
+
+        if unmarshaller and self.custom_type_codec is not None:
+            if len(signature(unmarshaller).parameters) == 1:
+                cls = None
+
+            self.unmarshallers[typename] = cls, unmarshaller
+            self.custom_type_codec.register_object_decoder_hook(self)
+
+
+class CustomTypeCodec(metaclass=ABCMeta):
+    """Interface for customizing how custom types are encoded and decoded."""
+
+    @abstractmethod
+    def register_object_encoder_hook(self, serializer: CustomizableSerializer) -> None:
+        """
+        Register a custom encoder callback on the serializer.
+
+        This callback would be called when the serializer encounters an object it cannot natively
+        serialize. What the callback returns is specific to each serializer type.
+
+        :param serializer: the serializer instance to use
+        """
+
+    @abstractmethod
+    def register_object_decoder_hook(self, serializer: CustomizableSerializer) -> None:
+        """
+        Register a callback on the serializer for unmarshalling previously marshalled objects.
+
+        :param serializer: the serializer instance to use
         """
