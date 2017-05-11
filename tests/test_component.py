@@ -32,3 +32,20 @@ async def test_default_config():
         resource = ctx.require_resource(Serializer)
         assert isinstance(resource, JSONSerializer)
         assert ctx.json is resource
+
+
+@pytest.mark.asyncio
+async def test_null_configs():
+    component = SerializationComponent(serializers={
+        'json': None,
+        'msgpack': None,
+        'pickle': None,
+        'yaml': None
+    })
+    async with Context() as ctx:
+        await component.start(ctx)
+
+        assert ctx.json
+        assert ctx.msgpack
+        assert ctx.pickle
+        assert ctx.yaml

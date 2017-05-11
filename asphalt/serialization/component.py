@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from asphalt.core import Component, Context, PluginContainer, merge_config
 from typeguard import check_argument_types
@@ -40,7 +40,8 @@ class SerializationComponent(Component):
     :param default_serializer_args: default values for constructor keyword arguments
     """
 
-    def __init__(self, serializers: Dict[str, Dict[str, Any]] = None, **default_serializer_args):
+    def __init__(self, serializers: Dict[str, Optional[Dict[str, Any]]] = None,
+                 **default_serializer_args):
         assert check_argument_types()
         if not serializers:
             default_serializer_args.setdefault(
