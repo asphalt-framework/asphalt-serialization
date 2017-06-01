@@ -3,6 +3,10 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
+**4.0.2** (2017-06-04)
+
+- Added compatibility with Asphalt 4.0
+
 **4.0.1** (2017-05-11)
 
 - Fixed ``None`` not being accepted in place of a serializer configuration dictionary
