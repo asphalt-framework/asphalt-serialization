@@ -1,7 +1,2 @@
-Sphinx >= 1.5b1
-sphinx_rtd_theme
-sphinx-autodoc-typehints >= 1.0.5
-sphinxcontrib-asyncio >= 0.2.0
-msgpack-python
-cbor2
-ruamel.yaml
+# This is for ReadTheDocs and can be removed once they upgrade to a newer setuptools release.
+setuptools >= 36.2.7

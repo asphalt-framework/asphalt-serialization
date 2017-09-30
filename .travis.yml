@@ -1,16 +1,52 @@
+language: python
 sudo: false
 
-language: python
+jobs:
+  include:
+    - env: TOXENV=py35
+      python: "3.5"
 
-python:
-  - "3.5"
-  - "3.6"
+    - env: TOXENV=py36
+      python: "3.6"
 
-install: pip install tox-travis coveralls
+    - env: TOXENV=pypy3
+      python: pypy3
+      after_success: skip
+
+    - env: TOXENV=flake8
+      python: "3.5"
+      after_success: skip
+
+    - env: TOXENV=mypy
+      python: "3.5"
+      after_success: skip
+
+    - stage: deploy to PyPI
+      python: "3.5"
+      install: pip install -U setuptools
+      script: skip
+      after_success: true
+      deploy:
+        provider: pypi
+        user: agronholm
+        password:
+          secure: WZBuy8ksaA5ZaTnobsUvP6Nx5RxHJE3vqizuCntx6vYjHWcZtPeTDXq42OjMSIVDISXqnDUaVyMrBcyiZ/GQSGKSy5oYAI0/uKd7gPUWFjNgr/FysGfdJmqoRQC4+P95sd3wopvAByoaQz/lAswl/o+99cJZsT4ACixcLsMQI3c3a2lJiuQKZOAnfRy+A+vDqrwF2MhDG7iLH/wjXuuYwxqaovogGDZNr8OsJAlvNrl/BiMojWP4Z5X0FneUfg2T5D+/haCA4ULAwba3tFqvFNAseFblyD+/f/Gmj1gHxEORljfUxkrrzrSjcrsPxkXQbiv31g2HVD/QmRlZuXsclqXxlD1H7y1FxlaaYZeqWKkrvsQRGVRFHnsiZFzYFDKJQyfM0dYZ3NzVV9BfgNLu19LZhzPfGXF44z2Oa1CxHsQpRMjJVIzrCfdxrjIKFaV4yAgeb4d4+N4kft9W/czw7zOtsTDyjDFbXz1cV2jpnWGLwwd5lR9dhvmyzvk4sr6J9nGwW63Dmg5y7fw/3PfIFH8+3uekFav8AgKltP1+IxFrUKDPaz4Gqgkyvxql7gaR8utpHM/2WnepmuAt1lTYKm0J16fSwrB30zLYexNfgzp9k7KUMo7/Z+o/Pi/lLcPiMVBWWjwzKglTZvM2QsArcP79z2vjNIyhGE3cnRqrK4g=
+        distributions: sdist bdist_wheel
+        on:
+          tags: true
+          repo: asphalt-framework/asphalt-serialization
+  allow_failures:
+    - env: TOXENV=mypy
+
+install:
+  - pip install -U setuptools
+  - pip install tox
 
 script: tox
 
-after_success: coveralls
+after_success:
+  - pip install coveralls
+  - coveralls
 
 notifications:
   webhooks:
@@ -23,14 +59,3 @@ notifications:
     on_failure: change
     use_notice: true
     skip_join: true
-
-deploy:
-  provider: pypi
-  user: agronholm
-  password:
-    secure: WZBuy8ksaA5ZaTnobsUvP6Nx5RxHJE3vqizuCntx6vYjHWcZtPeTDXq42OjMSIVDISXqnDUaVyMrBcyiZ/GQSGKSy5oYAI0/uKd7gPUWFjNgr/FysGfdJmqoRQC4+P95sd3wopvAByoaQz/lAswl/o+99cJZsT4ACixcLsMQI3c3a2lJiuQKZOAnfRy+A+vDqrwF2MhDG7iLH/wjXuuYwxqaovogGDZNr8OsJAlvNrl/BiMojWP4Z5X0FneUfg2T5D+/haCA4ULAwba3tFqvFNAseFblyD+/f/Gmj1gHxEORljfUxkrrzrSjcrsPxkXQbiv31g2HVD/QmRlZuXsclqXxlD1H7y1FxlaaYZeqWKkrvsQRGVRFHnsiZFzYFDKJQyfM0dYZ3NzVV9BfgNLu19LZhzPfGXF44z2Oa1CxHsQpRMjJVIzrCfdxrjIKFaV4yAgeb4d4+N4kft9W/czw7zOtsTDyjDFbXz1cV2jpnWGLwwd5lR9dhvmyzvk4sr6J9nGwW63Dmg5y7fw/3PfIFH8+3uekFav8AgKltP1+IxFrUKDPaz4Gqgkyvxql7gaR8utpHM/2WnepmuAt1lTYKm0J16fSwrB30zLYexNfgzp9k7KUMo7/Z+o/Pi/lLcPiMVBWWjwzKglTZvM2QsArcP79z2vjNIyhGE3cnRqrK4g=
-  distributions: sdist bdist_wheel
-  on:
-    tags: true
-    python: "3.5"
-    repo: asphalt-framework/asphalt-serialization
