@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from inspect import signature
-from typing import Callable, Any, Optional, Union, Dict  # noqa
+from typing import Callable, Any, Optional, Union, Dict, Tuple  # noqa: F401
 
 from typeguard import check_argument_types, qualified_name
 
@@ -53,10 +53,10 @@ class CustomizableSerializer(Serializer):
 
     __slots__ = ('custom_type_codec', 'marshallers', 'unmarshallers')
 
-    def __init__(self, custom_type_codec: 'CustomTypeCodec'):
+    def __init__(self, custom_type_codec: 'CustomTypeCodec') -> None:
         self.custom_type_codec = custom_type_codec
-        self.marshallers = {}  # type: Dict[str, Callable]
-        self.unmarshallers = {}  # type: Dict[str, Callable]
+        self.marshallers = {}  # type: Dict[type, Tuple[str, Callable, bool]]
+        self.unmarshallers = {}  # type: Dict[str, Tuple[type, Callable]]
 
     def register_custom_type(
             self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,

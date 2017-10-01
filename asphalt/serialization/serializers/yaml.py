@@ -29,7 +29,7 @@ class YAMLSerializer(Serializer):
 
     __slots__ = '_dumper_class', '_loader_class', '_dumper_options'
 
-    def __init__(self, safe: bool=True, dumper_options: Dict[str, Any]=None):
+    def __init__(self, safe: bool = True, dumper_options: Dict[str, Any] = None) -> None:
         assert check_argument_types()
         self._dumper_class = yaml.SafeDumper if safe else yaml.Dumper
         self._loader_class = yaml.SafeLoader if safe else yaml.Loader

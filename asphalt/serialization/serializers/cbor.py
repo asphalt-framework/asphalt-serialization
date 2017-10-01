@@ -21,7 +21,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
     .. note:: Custom wrapping hooks are ignored when CBORTags are used.
     """
 
-    def __init__(self, type_tag: Optional[int] = 4554, **kwargs):
+    def __init__(self, type_tag: Optional[int] = 4554, **kwargs) -> None:
         super().__init__(**kwargs)
         self.type_tag = type_tag
 
@@ -108,7 +108,7 @@ class CBORSerializer(CustomizableSerializer):
 
     def __init__(self, encoder_options: Dict[str, Any] = None,
                  decoder_options: Dict[str, Any] = None,
-                 custom_type_codec: Union[CBORTypeCodec, str] = None):
+                 custom_type_codec: Union[CBORTypeCodec, str] = None) -> None:
         assert check_argument_types()
         super().__init__(resolve_reference(custom_type_codec) or CBORTypeCodec())
         self.encoder_options = encoder_options or {}

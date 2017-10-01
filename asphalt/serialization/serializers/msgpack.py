@@ -19,7 +19,7 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec):
         wrapping
     """
 
-    def __init__(self, type_code: Optional[int] = 119, **kwargs):
+    def __init__(self, type_code: Optional[int] = 119, **kwargs) -> None:
         assert check_argument_types()
         super().__init__(**kwargs)
         self.type_code = type_code
@@ -86,7 +86,7 @@ class MsgpackSerializer(CustomizableSerializer):
 
     def __init__(
             self, packer_options: Dict[str, Any] = None, unpacker_options: Dict[str, Any] = None,
-            custom_type_codec: Union[MsgpackTypeCodec, str] = None):
+            custom_type_codec: Union[MsgpackTypeCodec, str] = None) -> None:
         assert check_argument_types()
         super().__init__(resolve_reference(custom_type_codec) or MsgpackTypeCodec())
         self.packer_options = packer_options or {}

@@ -48,7 +48,7 @@ class JSONSerializer(CustomizableSerializer):
 
     def __init__(self, encoder_options: Dict[str, Any] = None,
                  decoder_options: Dict[str, Any] = None, encoding: str = 'utf-8',
-                 custom_type_codec: Union[JSONTypeCodec, str] = None):
+                 custom_type_codec: Union[JSONTypeCodec, str] = None) -> None:
         assert check_argument_types()
         super().__init__(resolve_reference(custom_type_codec) or JSONTypeCodec())
         self.encoding = encoding
@@ -68,8 +68,8 @@ class JSONSerializer(CustomizableSerializer):
         return self._encoder.encode(obj).encode(self.encoding)
 
     def deserialize(self, payload: bytes):
-        payload = payload.decode(self.encoding)
-        return self._decoder.decode(payload)
+        text_payload = payload.decode(self.encoding)
+        return self._decoder.decode(text_payload)
 
     @property
     def mimetype(self):

@@ -16,7 +16,7 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
     :param state_key dict key for the marshalled state
     """
 
-    def __init__(self, type_key: str = '__type__', state_key: str = 'state'):
+    def __init__(self, type_key: str = '__type__', state_key: str = 'state') -> None:
         assert check_argument_types()
         self.type_key = type_key
         self.state_key = state_key
