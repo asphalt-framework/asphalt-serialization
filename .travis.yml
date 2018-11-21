@@ -1,31 +1,48 @@
+dist: xenial
 language: python
-sudo: false
+cache: pip
+python: "3.6"
+
+stages:
+  - name: static analysis
+  - name: test
+  - name: deploy to pypi
+    if: type = push AND tag =~ ^\d+\.\d+\.\d+
 
 jobs:
   include:
-    - env: TOXENV=py35
-      python: "3.5"
+    - stage: static analysis
+      env: TOXENV=flake8
 
-    - env: TOXENV=py36
+    - stage: static analysis
+      env: TOXENV=mypy
+      python: "3.7"
+
+    - stage: test
+      env: TOXENV=pypy3
+      python: pypy3.5
+      after_success: &after_success
+        - pip install coveralls
+        - coveralls
+
+    - stage: test
+      env: TOXENV=py35
+      python: "3.5.2"
+      after_success: *after_success
+
+    - stage: test
+      env: TOXENV=py36
       python: "3.6"
+      after_success: *after_success
 
-    - env: TOXENV=pypy3
-      python: pypy3
-      after_success: skip
+    - stage: test
+      env: TOXENV=py37
+      python: "3.7"
+      after_success: *after_success
 
-    - env: TOXENV=flake8
-      python: "3.5"
-      after_success: skip
-
-    - env: TOXENV=mypy
-      python: "3.5"
-      after_success: skip
-
-    - stage: deploy to PyPI
-      python: "3.5"
-      install: pip install -U setuptools
+    - stage: deploy to pypi
+      install: true
       script: skip
-      after_success: true
       deploy:
         provider: pypi
         user: agronholm
@@ -35,25 +52,3 @@ jobs:
         on:
           tags: true
           repo: asphalt-framework/asphalt-serialization
-
-install:
-  - pip install -U setuptools
-  - pip install tox
-
-script: tox
-
-after_success:
-  - pip install coveralls
-  - coveralls
-
-notifications:
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/aa5a289b7a0df8aefd68
-  irc:
-    channels:
-      - "chat.freenode.net#asphalt"
-    on_success: change
-    on_failure: change
-    use_notice: true
-    skip_join: true
