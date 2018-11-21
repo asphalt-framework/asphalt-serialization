@@ -53,7 +53,10 @@ jobs:
           tags: true
           repo: asphalt-framework/asphalt-serialization
 
-install: pip install tox
+install:
+  - pip install "setuptools >= 40.1.0"
+  - pip install tox
+
 script: tox
 
 notifications:
