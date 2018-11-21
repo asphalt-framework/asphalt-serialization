@@ -63,9 +63,9 @@ class MsgpackSerializer(CustomizableSerializer):
     for the options explicitly:
 
     * ``use_bin_type=True`` (packer)
-    * ``encoding='utf-8'`` (unpacker)
+    * ``raw=False`` (unpacker)
 
-    To use this serializer backend, the ``msgpack-python`` library must be installed.
+    To use this serializer backend, the ``msgpack`` library must be installed.
     A convenient way to do this is to install ``asphalt-serialization`` with the ``msgpack``
     extra:
 
@@ -92,7 +92,7 @@ class MsgpackSerializer(CustomizableSerializer):
         self.packer_options = packer_options or {}
         self.packer_options.setdefault('use_bin_type', True)
         self.unpacker_options = unpacker_options or {}
-        self.unpacker_options.setdefault('encoding', 'utf-8')
+        self.unpacker_options.setdefault('raw', False)
 
     def serialize(self, obj) -> bytes:
         return packb(obj, **self.packer_options)
