@@ -3,6 +3,11 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
+**4.0.3** (2018-11-21)
+
+- Fixed msgpack deprecation warnings by replacing the ``encoding="utf-8"`` unpacker option with
+  ``raw=False``
+
 **4.0.2** (2017-06-04)
 
 - Added compatibility with Asphalt 4.0
