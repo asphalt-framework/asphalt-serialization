@@ -50,10 +50,10 @@ class SerializationComponent(Component):
 
         self.serializers = []  # type: List[Tuple]
         for resource_name, config in serializers.items():
-            config = merge_config(default_serializer_args, config or {})
-            type_ = config.pop('backend', resource_name)
-            context_attr = config.pop('context_attr', resource_name)
-            serializer = serializer_types.create_object(type_, **config)
+            merged = merge_config(default_serializer_args, config or {})
+            type_ = merged.pop('backend', resource_name)
+            context_attr = merged.pop('context_attr', resource_name)
+            serializer = serializer_types.create_object(type_, **merged)
             self.serializers.append((resource_name, context_attr, serializer))
 
     async def start(self, ctx: Context):

@@ -56,7 +56,7 @@ class CustomizableSerializer(Serializer):
     def __init__(self, custom_type_codec: 'CustomTypeCodec') -> None:
         self.custom_type_codec = custom_type_codec
         self.marshallers = {}  # type: Dict[type, Tuple[str, Callable, bool]]
-        self.unmarshallers = {}  # type: Dict[str, Tuple[type, Callable]]
+        self.unmarshallers = {}  # type: Dict[str, Tuple[Optional[type], Callable]]
 
     def register_custom_type(
             self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
@@ -94,10 +94,11 @@ class CustomizableSerializer(Serializer):
             self.custom_type_codec.register_object_encoder_hook(self)
 
         if unmarshaller and self.custom_type_codec is not None:
+            target_cls = cls  # type: Optional[type]
             if len(signature(unmarshaller).parameters) == 1:
-                cls = None
+                target_cls = None
 
-            self.unmarshallers[typename] = cls, unmarshaller
+            self.unmarshallers[typename] = target_cls, unmarshaller
             self.custom_type_codec.register_object_decoder_hook(self)
 
 
