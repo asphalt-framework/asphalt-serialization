@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Dict, Optional, Tuple, Union
 
 from asphalt.core import resolve_reference
@@ -19,7 +21,7 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec):
         wrapping
     """
 
-    def __init__(self, type_code: Optional[int] = 119, **kwargs) -> None:
+    def __init__(self, type_code: Optional[int] = 119, **kwargs):
         assert check_argument_types()
         super().__init__(**kwargs)
         self.type_code = type_code

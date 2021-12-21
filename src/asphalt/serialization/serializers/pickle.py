@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pickle
 
 from typeguard import check_argument_types
@@ -17,10 +19,10 @@ class PickleSerializer(Serializer):
 
     __slots__ = 'protocol'
 
-    def __init__(self, protocol: int = pickle.HIGHEST_PROTOCOL) -> None:
+    def __init__(self, protocol: int = pickle.HIGHEST_PROTOCOL):
         assert check_argument_types()
         assert 0 <= protocol <= pickle.HIGHEST_PROTOCOL,\
-            '"protocol" must be between 0 and {}'.format(pickle.HIGHEST_PROTOCOL)
+            f'"protocol" must be between 0 and {pickle.HIGHEST_PROTOCOL}'
 
         self.protocol = protocol
 

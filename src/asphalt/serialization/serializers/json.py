@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from json.decoder import JSONDecoder
 from json.encoder import JSONEncoder
 from typing import Any, Dict, Union
@@ -48,7 +50,7 @@ class JSONSerializer(CustomizableSerializer):
 
     def __init__(self, encoder_options: Dict[str, Any] = None,
                  decoder_options: Dict[str, Any] = None, encoding: str = 'utf-8',
-                 custom_type_codec: Union[JSONTypeCodec, str] = None) -> None:
+                 custom_type_codec: Union[JSONTypeCodec, str] = None):
         assert check_argument_types()
         super().__init__(resolve_reference(custom_type_codec) or JSONTypeCodec())
         self.encoding = encoding

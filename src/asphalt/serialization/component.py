@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import logging
-from typing import Any, Dict, List, Optional, Tuple  # noqa: F401
+from typing import Any, Dict, List, Optional, Tuple
 
 from asphalt.core import Component, Context, PluginContainer, merge_config
 from typeguard import check_argument_types
@@ -41,14 +43,14 @@ class SerializationComponent(Component):
     """
 
     def __init__(self, serializers: Dict[str, Optional[Dict[str, Any]]] = None,
-                 **default_serializer_args) -> None:
+                 **default_serializer_args):
         assert check_argument_types()
         if not serializers:
             default_serializer_args.setdefault(
                 'context_attr', default_serializer_args.get('backend'))
             serializers = {'default': default_serializer_args}
 
-        self.serializers = []  # type: List[Tuple]
+        self.serializers: List[Tuple] = []
         for resource_name, config in serializers.items():
             merged = merge_config(default_serializer_args, config or {})
             type_ = merged.pop('backend', resource_name)

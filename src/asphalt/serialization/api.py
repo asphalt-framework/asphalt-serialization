@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from abc import ABCMeta, abstractmethod
 from inspect import signature
-from typing import Any, Callable, Dict, Optional, Tuple, Union  # noqa: F401
+from typing import Any, Callable, Dict, Optional, Tuple, Union
 
 from typeguard import check_argument_types, qualified_name
 
@@ -53,10 +55,10 @@ class CustomizableSerializer(Serializer):
 
     __slots__ = ('custom_type_codec', 'marshallers', 'unmarshallers')
 
-    def __init__(self, custom_type_codec: 'CustomTypeCodec') -> None:
+    def __init__(self, custom_type_codec: 'CustomTypeCodec'):
         self.custom_type_codec = custom_type_codec
-        self.marshallers = {}  # type: Dict[type, Tuple[str, Callable, bool]]
-        self.unmarshallers = {}  # type: Dict[str, Tuple[Optional[type], Callable]]
+        self.marshallers: Dict[type, Tuple[str, Callable, bool]] = {}
+        self.unmarshallers: Dict[str, Tuple[Optional[type], Callable]] = {}
 
     def register_custom_type(
             self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
@@ -94,7 +96,7 @@ class CustomizableSerializer(Serializer):
             self.custom_type_codec.register_object_encoder_hook(self)
 
         if unmarshaller and self.custom_type_codec is not None:
-            target_cls = cls  # type: Optional[type]
+            target_cls: Optional[type] = cls
             if len(signature(unmarshaller).parameters) == 1:
                 target_cls = None
 

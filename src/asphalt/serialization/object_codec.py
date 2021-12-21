@@ -1,9 +1,11 @@
-from typing import Any, Callable, Dict, Tuple, Union  # noqa
+from __future__ import annotations
+
+from typing import Any, Callable, Dict, Tuple, Union
 
 from asphalt.core import qualified_name
 from typeguard import check_argument_types
 
-from asphalt.serialization.api import CustomizableSerializer, CustomTypeCodec  # noqa
+from asphalt.serialization.api import CustomizableSerializer, CustomTypeCodec
 
 
 class DefaultCustomTypeCodec(CustomTypeCodec):
@@ -16,13 +18,14 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
     :param state_key dict key for the marshalled state
     """
 
-    def __init__(self, type_key: str = '__type__', state_key: str = 'state') -> None:
+    serializer: CustomizableSerializer
+
+    def __init__(self, type_key: str = '__type__', state_key: str = 'state'):
         assert check_argument_types()
         self.type_key = type_key
         self.state_key = state_key
-        self.serializer = None  # type: CustomizableSerializer
-        self.wrap_callback = self.wrap_state_dict  # type: Callable[[str, Any], Any]
-        self.unwrap_callback = self.unwrap_state_dict  # type: Callable[[Any], Any]
+        self.wrap_callback: Callable[[str, Any], Any] = self.wrap_state_dict
+        self.unwrap_callback: Callable[[Any], Any] = self.unwrap_state_dict
 
     def default_encoder(self, obj):
         obj_type = obj.__class__
@@ -44,7 +47,7 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
         try:
             cls, unmarshaller = self.serializer.unmarshallers[typename]
         except KeyError:
-            raise LookupError('no unmarshaller found for type "{}"'.format(typename)) from None
+            raise LookupError(f'no unmarshaller found for type "{typename}"') from None
 
         if cls is not None:
             instance = cls.__new__(cls)

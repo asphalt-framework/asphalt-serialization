@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from io import StringIO
 
 from ruamel.yaml import YAML
@@ -28,7 +30,7 @@ class YAMLSerializer(Serializer):
 
     __slots__ = '_yaml', '_dumper_options'
 
-    def __init__(self, safe: bool = True) -> None:
+    def __init__(self, safe: bool = True):
         assert check_argument_types()
         self._yaml = YAML(typ='safe' if safe else 'unsafe')
 

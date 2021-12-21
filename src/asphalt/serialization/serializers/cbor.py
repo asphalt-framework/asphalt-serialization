@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any, Dict, Optional, Union
 
 import cbor2
@@ -21,7 +23,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
     .. note:: Custom wrapping hooks are ignored when CBORTags are used.
     """
 
-    def __init__(self, type_tag: Optional[int] = 4554, **kwargs) -> None:
+    def __init__(self, type_tag: Optional[int] = 4554, **kwargs):
         super().__init__(**kwargs)
         self.type_tag = type_tag
 
@@ -62,7 +64,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
         try:
             cls, unmarshaller = self.serializer.unmarshallers[typename]
         except KeyError:
-            raise LookupError('no unmarshaller found for type "{}"'.format(typename)) from None
+            raise LookupError(f'no unmarshaller found for type "{typename}"') from None
 
         if cls is not None:
             instance = cls.__new__(cls)

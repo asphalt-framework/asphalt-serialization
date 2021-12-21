@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from asphalt.core import qualified_name
 
 
