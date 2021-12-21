@@ -1,10 +1,10 @@
 from json.decoder import JSONDecoder
 from json.encoder import JSONEncoder
-from typing import Dict, Any, Union
-
-from typeguard import check_argument_types
+from typing import Any, Dict, Union
 
 from asphalt.core import resolve_reference
+from typeguard import check_argument_types
+
 from asphalt.serialization.api import CustomizableSerializer
 from asphalt.serialization.object_codec import DefaultCustomTypeCodec
 

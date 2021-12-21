@@ -1,9 +1,9 @@
-from typing import Callable, Any, Dict, Tuple, Union  # noqa
+from typing import Any, Callable, Dict, Tuple, Union  # noqa
 
 from asphalt.core import qualified_name
 from typeguard import check_argument_types
 
-from asphalt.serialization.api import CustomTypeCodec, CustomizableSerializer  # noqa
+from asphalt.serialization.api import CustomizableSerializer, CustomTypeCodec  # noqa
 
 
 class DefaultCustomTypeCodec(CustomTypeCodec):

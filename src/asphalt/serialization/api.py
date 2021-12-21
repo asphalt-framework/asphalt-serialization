@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from inspect import signature
-from typing import Callable, Any, Optional, Union, Dict, Tuple  # noqa: F401
+from typing import Any, Callable, Dict, Optional, Tuple, Union  # noqa: F401
 
 from typeguard import check_argument_types, qualified_name
 

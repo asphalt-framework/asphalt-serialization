@@ -1,8 +1,9 @@
 from io import StringIO
 
-from asphalt.serialization.api import Serializer
 from ruamel.yaml import YAML
 from typeguard import check_argument_types
+
+from asphalt.serialization.api import Serializer
 
 
 class YAMLSerializer(Serializer):

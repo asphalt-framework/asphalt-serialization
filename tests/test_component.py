@@ -1,5 +1,5 @@
-from asphalt.core.context import Context
 import pytest
+from asphalt.core.context import Context
 
 from asphalt.serialization.api import Serializer
 from asphalt.serialization.component import SerializationComponent

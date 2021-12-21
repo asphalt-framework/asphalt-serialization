@@ -1,7 +1,7 @@
-from typing import Dict, Any, Optional, Union, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 from asphalt.core import resolve_reference
-from msgpack import packb, unpackb, ExtType
+from msgpack import ExtType, packb, unpackb
 from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer

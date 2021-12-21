@@ -1,10 +1,10 @@
 import logging
-from typing import Dict, Any, Optional, List, Tuple  # noqa: F401
+from typing import Any, Dict, List, Optional, Tuple  # noqa: F401
 
 from asphalt.core import Component, Context, PluginContainer, merge_config
 from typeguard import check_argument_types
 
-from asphalt.serialization.api import Serializer, CustomizableSerializer
+from asphalt.serialization.api import CustomizableSerializer, Serializer
 
 serializer_types = PluginContainer('asphalt.serialization.serializers', Serializer)
 logger = logging.getLogger(__name__)
