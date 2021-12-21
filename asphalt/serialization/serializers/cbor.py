@@ -50,8 +50,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
         if wrap_state:
             serialized_state = encoder.encode_to_bytes(marshalled_state)
             wrapped_state = [typename, serialized_state]
-            with encoder.disable_value_sharing():
-                encoder.encode(cbor2.CBORTag(self.type_tag, wrapped_state))
+            encoder.encode(cbor2.CBORTag(self.type_tag, wrapped_state))
         else:
             encoder.encode(marshalled_state)
 
@@ -68,7 +67,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
 
         if cls is not None:
             instance = cls.__new__(cls)
-            decoder.set_shareable(shareable_index, instance)
+            decoder.set_shareable(instance)
             marshalled_state = decoder.decode_from_bytes(serialized_state)
             unmarshaller(instance, marshalled_state)
             return instance

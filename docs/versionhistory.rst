@@ -3,6 +3,14 @@ Version history
 
 This library adheres to `Semantic Versioning <http://semver.org/>`_.
 
+**UNRELEASED**
+
+- **BACKWARD INCOMPATIBLE** Upgraded dependencies:
+
+  - ``ruamel.yaml`` ⟶ 0.15+
+  - ``cbor2`` ⟶ ~5.0
+  - ``msgpack`` ⟶ ~1.0
+
 **4.0.3** (2018-11-21)
 
 - Fixed msgpack deprecation warnings by replacing the ``encoding="utf-8"`` unpacker option with
