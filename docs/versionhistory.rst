@@ -10,6 +10,8 @@ This library adheres to `Semantic Versioning <http://semver.org/>`_.
   - ``ruamel.yaml`` ⟶ 0.15+
   - ``cbor2`` ⟶ ~5.0
   - ``msgpack`` ⟶ ~1.0
+- Added support for Python 3.10
+- Dropped support for Python 3.5 and 3.6
 
 **4.0.3** (2018-11-21)
 

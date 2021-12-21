@@ -54,8 +54,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
         else:
             encoder.encode(marshalled_state)
 
-    def cbor_tag_decoder(self, decoder: cbor2.CBORDecoder, tag: cbor2.CBORTag,
-                         shareable_index: int = None):
+    def cbor_tag_decoder(self, decoder: cbor2.CBORDecoder, tag: cbor2.CBORTag):
         if tag.tag != self.type_tag:
             return tag
 
