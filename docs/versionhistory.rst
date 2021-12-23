@@ -47,7 +47,7 @@ This library adheres to `Semantic Versioning <http://semver.org/>`_.
 **3.0.0** (2016-07-03)
 
 - **BACKWARD INCOMPATIBLE** Switched the CBOR implementation to
-  `cbor2 <https://pypi.io/project/cbor2/>`
+  `cbor2 <https://pypi.io/project/cbor2/>`_
 - **BACKWARD INCOMPATIBLE** Switched msgpack's MIME type to ``application/msgpack``
 - **BACKWARD INCOMPATIBLE** Switched the default context attribute name to the backend name,
   for consistency with asphalt-templating
