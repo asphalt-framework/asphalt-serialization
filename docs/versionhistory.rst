@@ -10,6 +10,8 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
   - ``ruamel.yaml`` ⟶ 0.15+
   - ``cbor2`` ⟶ ~5.0
   - ``msgpack`` ⟶ ~1.0
+- **BACKWARD INCOMPATIBLE** Removed the ``dumper_options`` parameter to ``YAMLSerializer``, as
+  ``ruamel.yaml`` does not seem to support this anymore
 - Added support for Python 3.10
 - Dropped support for Python 3.5 and 3.6
 
