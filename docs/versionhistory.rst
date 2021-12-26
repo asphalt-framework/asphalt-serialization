@@ -1,9 +1,9 @@
 Version history
 ===============
 
-This library adheres to `Semantic Versioning <http://semver.org/>`_.
+This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
 
-**UNRELEASED**
+**5.0.0** (2021-12-26)
 
 - **BACKWARD INCOMPATIBLE** Upgraded dependencies:
 
