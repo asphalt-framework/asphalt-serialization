@@ -32,7 +32,7 @@ python_version = "3.7"
 ignore_missing_imports = true
 
 [tool.coverage.run]
-source = ["asphalt"]
+source = ["asphalt.serialization"]
 relative_files = true
 branch = true
 
