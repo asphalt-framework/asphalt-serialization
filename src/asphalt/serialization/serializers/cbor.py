@@ -27,26 +27,31 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
         super().__init__(**kwargs)
         self.type_tag = type_tag
 
-    def register_object_encoder_hook(self, serializer: 'CBORSerializer') -> None:
+    def register_object_encoder_hook(self, serializer: CBORSerializer) -> None:
         self.serializer = serializer
         if self.type_tag:
-            serializer.encoder_options['default'] = cbor2.shareable_encoder(self.cbor_tag_encoder)
+            serializer.encoder_options["default"] = cbor2.shareable_encoder(
+                self.cbor_tag_encoder
+            )
         else:
-            serializer.encoder_options['default'] = self.cbor_default_encoder
+            serializer.encoder_options["default"] = self.cbor_default_encoder
 
-    def register_object_decoder_hook(self, serializer: 'CBORSerializer') -> None:
+    def register_object_decoder_hook(self, serializer: CBORSerializer) -> None:
         self.serializer = serializer
         if self.type_tag:
-            serializer.decoder_options['tag_hook'] = self.cbor_tag_decoder
+            serializer.decoder_options["tag_hook"] = self.cbor_tag_decoder
         else:
-            serializer.decoder_options['object_hook'] = self.cbor_default_decoder
+            serializer.decoder_options["object_hook"] = self.cbor_default_decoder
 
     def cbor_tag_encoder(self, encoder: cbor2.CBOREncoder, obj):
         try:
-            typename, marshaller, wrap_state = self.serializer.marshallers[obj.__class__]
+            typename, marshaller, wrap_state = self.serializer.marshallers[
+                obj.__class__
+            ]
         except KeyError:
-            raise LookupError('no marshaller found for type "{}"'
-                              .format(qualified_name(type(obj)))) from None
+            raise LookupError(
+                f'no marshaller found for type "{qualified_name(type(obj))}"'
+            ) from None
 
         marshalled_state = marshaller(obj)
         if wrap_state:
@@ -103,12 +108,20 @@ class CBORSerializer(CustomizableSerializer):
         return marshalled objects as-is
     """
 
-    __slots__ = ('encoder_options', 'decoder_options', 'custom_type_codec', 'marshallers',
-                 'unmarshallers')
+    __slots__ = (
+        "encoder_options",
+        "decoder_options",
+        "custom_type_codec",
+        "marshallers",
+        "unmarshallers",
+    )
 
-    def __init__(self, encoder_options: Dict[str, Any] = None,
-                 decoder_options: Dict[str, Any] = None,
-                 custom_type_codec: Union[CBORTypeCodec, str] = None) -> None:
+    def __init__(
+        self,
+        encoder_options: Dict[str, Any] = None,
+        decoder_options: Dict[str, Any] = None,
+        custom_type_codec: Union[CBORTypeCodec, str] = None,
+    ) -> None:
         assert check_argument_types()
         super().__init__(resolve_reference(custom_type_codec) or CBORTypeCodec())
         self.encoder_options = encoder_options or {}
@@ -122,4 +135,4 @@ class CBORSerializer(CustomizableSerializer):
 
     @property
     def mimetype(self):
-        return 'application/cbor'
+        return "application/cbor"

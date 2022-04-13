@@ -17,12 +17,13 @@ class PickleSerializer(Serializer):
     :param protocol: pickle protocol level to use (defaults to the highest possible)
     """
 
-    __slots__ = 'protocol'
+    __slots__ = "protocol"
 
     def __init__(self, protocol: int = pickle.HIGHEST_PROTOCOL):
         assert check_argument_types()
-        assert 0 <= protocol <= pickle.HIGHEST_PROTOCOL,\
-            f'"protocol" must be between 0 and {pickle.HIGHEST_PROTOCOL}'
+        assert (
+            0 <= protocol <= pickle.HIGHEST_PROTOCOL
+        ), f'"protocol" must be between 0 and {pickle.HIGHEST_PROTOCOL}'
 
         self.protocol = protocol
 
@@ -34,4 +35,4 @@ class PickleSerializer(Serializer):
 
     @property
     def mimetype(self):
-        return 'application/python-pickle'
+        return "application/python-pickle"

@@ -8,12 +8,14 @@ from asphalt.serialization.serializers.json import JSONSerializer
 
 @pytest.mark.asyncio
 async def test_component_start():
-    component = SerializationComponent(serializers={
-        'json': {'encoder_options': {'allow_nan': False}},
-        'msgpack': {'unpacker_options': {'encoding': 'iso-8859-1'}},
-        'pickle': {'protocol': 3},
-        'yaml': {'safe': False}
-    })
+    component = SerializationComponent(
+        serializers={
+            "json": {"encoder_options": {"allow_nan": False}},
+            "msgpack": {"unpacker_options": {"encoding": "iso-8859-1"}},
+            "pickle": {"protocol": 3},
+            "yaml": {"safe": False},
+        }
+    )
     async with Context() as ctx:
         await component.start(ctx)
 
@@ -25,7 +27,7 @@ async def test_component_start():
 
 @pytest.mark.asyncio
 async def test_default_config():
-    component = SerializationComponent(backend='json')
+    component = SerializationComponent(backend="json")
     async with Context() as ctx:
         await component.start(ctx)
 
@@ -36,12 +38,9 @@ async def test_default_config():
 
 @pytest.mark.asyncio
 async def test_null_configs():
-    component = SerializationComponent(serializers={
-        'json': None,
-        'msgpack': None,
-        'pickle': None,
-        'yaml': None
-    })
+    component = SerializationComponent(
+        serializers={"json": None, "msgpack": None, "pickle": None, "yaml": None}
+    )
     async with Context() as ctx:
         await component.start(ctx)
 

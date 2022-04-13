@@ -28,25 +28,25 @@ class YAMLSerializer(Serializer):
     :param safe: ``True`` to (de)serialize in safe mode, ``False`` to enable extended tags
     """
 
-    __slots__ = '_yaml', '_dumper_options'
+    __slots__ = "_yaml", "_dumper_options"
 
     def __init__(self, safe: bool = True):
         assert check_argument_types()
-        self._yaml = YAML(typ='safe' if safe else 'unsafe')
+        self._yaml = YAML(typ="safe" if safe else "unsafe")
 
     def serialize(self, obj) -> bytes:
         buffer = StringIO()
         self._yaml.dump(obj, buffer)
-        return buffer.getvalue().encode('utf-8')
+        return buffer.getvalue().encode("utf-8")
 
     def deserialize(self, payload: bytes):
         return self._yaml.load(payload)
 
     @property
     def mimetype(self):
-        return 'text/yaml'
+        return "text/yaml"
 
     @property
     def safe(self):
         """Returns ``True`` if the safe mode is being used with (de)serialization."""
-        return 'safe' in self._yaml.typ
+        return "safe" in self._yaml.typ

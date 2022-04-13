@@ -53,18 +53,24 @@ class CustomizableSerializer(Serializer):
     :vartype unmarshallers: Dict[str, Callable]
     """
 
-    __slots__ = ('custom_type_codec', 'marshallers', 'unmarshallers')
+    __slots__ = ("custom_type_codec", "marshallers", "unmarshallers")
 
-    def __init__(self, custom_type_codec: 'CustomTypeCodec'):
+    def __init__(self, custom_type_codec: CustomTypeCodec):
         self.custom_type_codec = custom_type_codec
         self.marshallers: Dict[type, Tuple[str, Callable, bool]] = {}
         self.unmarshallers: Dict[str, Tuple[Optional[type], Callable]] = {}
 
     def register_custom_type(
-            self, cls: type, marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
-            unmarshaller: Union[Callable[[Any, Any], None],
-                                Callable[[Any], Any], None] = default_unmarshaller, *,
-            typename: str = None, wrap_state: bool = True) -> None:
+        self,
+        cls: type,
+        marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
+        unmarshaller: Union[
+            Callable[[Any, Any], None], Callable[[Any], Any], None
+        ] = default_unmarshaller,
+        *,
+        typename: str = None,
+        wrap_state: bool = True,
+    ) -> None:
         """
         Register a marshaller and/or unmarshaller for the given class.
 

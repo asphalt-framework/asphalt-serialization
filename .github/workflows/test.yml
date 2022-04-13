@@ -1,4 +1,4 @@
-name: Python codeqa/test
+name: Run the test suite
 
 on:
   push:
@@ -6,34 +6,12 @@ on:
   pull_request:
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.x
-    - uses: actions/cache@v2
-      with:
-        path: ~/.cache/pip
-        key: pip-lint
-    - name: Install dependencies
-      run: pip install pyproject-flake8 isort mypy
-    - name: Run flake8
-      run: pflake8 src tests
-    - name: Check types with Mypy
-      run: mypy src
-    - name: Run isort
-      run: isort -c src tests
-
   test:
-    needs: [lint]
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.7", "3.10", "pypy-3.8"]
+        python-version: ["3.7", "3.10", "3.11-dev", "pypy-3.8"]
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
@@ -46,7 +24,7 @@ jobs:
         path: ~/.cache/pip
         key: pip-test-${{ matrix.python-version }}-${{ matrix.os }}
     - name: Install dependencies
-      run: pip install .[test,msgpack,cbor,yaml] coveralls
+      run: pip install .[test] coveralls
     - name: Test with pytest
       run: coverage run -m pytest
     - name: Upload Coverage

@@ -8,7 +8,7 @@ from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer, Serializer
 
-serializer_types = PluginContainer('asphalt.serialization.serializers', Serializer)
+serializer_types = PluginContainer("asphalt.serialization.serializers", Serializer)
 logger = logging.getLogger(__name__)
 
 
@@ -42,19 +42,23 @@ class SerializationComponent(Component):
     :param default_serializer_args: default values for constructor keyword arguments
     """
 
-    def __init__(self, serializers: Dict[str, Optional[Dict[str, Any]]] = None,
-                 **default_serializer_args):
+    def __init__(
+        self,
+        serializers: Dict[str, Optional[Dict[str, Any]]] = None,
+        **default_serializer_args,
+    ):
         assert check_argument_types()
         if not serializers:
             default_serializer_args.setdefault(
-                'context_attr', default_serializer_args.get('backend'))
-            serializers = {'default': default_serializer_args}
+                "context_attr", default_serializer_args.get("backend")
+            )
+            serializers = {"default": default_serializer_args}
 
         self.serializers: List[Tuple] = []
         for resource_name, config in serializers.items():
             merged = merge_config(default_serializer_args, config or {})
-            type_ = merged.pop('backend', resource_name)
-            context_attr = merged.pop('context_attr', resource_name)
+            type_ = merged.pop("backend", resource_name)
+            context_attr = merged.pop("context_attr", resource_name)
             serializer = serializer_types.create_object(type_, **merged)
             self.serializers.append((resource_name, context_attr, serializer))
 
@@ -65,5 +69,9 @@ class SerializationComponent(Component):
                 types.append(CustomizableSerializer)
 
             ctx.add_resource(serializer, resource_name, context_attr, types=types)
-            logger.info('Configured serializer (%s / ctx.%s; type=%s)', resource_name,
-                        context_attr, serializer.mimetype)
+            logger.info(
+                "Configured serializer (%s / ctx.%s; type=%s)",
+                resource_name,
+                context_attr,
+                serializer.mimetype,
+            )

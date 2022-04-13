@@ -20,7 +20,7 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
 
     serializer: CustomizableSerializer
 
-    def __init__(self, type_key: str = '__type__', state_key: str = 'state'):
+    def __init__(self, type_key: str = "__type__", state_key: str = "state"):
         assert check_argument_types()
         self.type_key = type_key
         self.state_key = state_key
@@ -32,8 +32,9 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
         try:
             typename, marshaller, wrap_state = self.serializer.marshallers[obj_type]
         except KeyError:
-            raise LookupError('no marshaller found for type "{}"'
-                              .format(qualified_name(obj_type))) from None
+            raise LookupError(
+                f'no marshaller found for type "{qualified_name(obj_type)}"'
+            ) from None
 
         state = marshaller(obj)
         return self.wrap_callback(typename, state) if wrap_state else state
@@ -70,7 +71,9 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
         """
         return {self.type_key: typename, self.state_key: state}
 
-    def unwrap_state_dict(self, obj: Dict[str, Any]) -> Union[Tuple[str, Any], Tuple[None, None]]:
+    def unwrap_state_dict(
+        self, obj: Dict[str, Any]
+    ) -> Union[Tuple[str, Any], Tuple[None, None]]:
         """Unwraps a marshalled state previously wrapped using :meth:`wrap_state_dict`."""
         if len(obj) == 2:
             typename = obj.get(self.type_key)

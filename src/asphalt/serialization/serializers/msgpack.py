@@ -30,16 +30,16 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec):
             self.wrap_callback = self.wrap_state_ext_type
             self.unwrap_callback = self.unwrap_state_ext_type
 
-    def register_object_decoder_hook(self, serializer: 'MsgpackSerializer') -> None:
+    def register_object_decoder_hook(self, serializer: MsgpackSerializer) -> None:
         self.serializer = serializer
-        serializer.packer_options['default'] = self.default_encoder
+        serializer.packer_options["default"] = self.default_encoder
 
-    def register_object_encoder_hook(self, serializer: 'MsgpackSerializer') -> None:
+    def register_object_encoder_hook(self, serializer: MsgpackSerializer) -> None:
         self.serializer = serializer
         if self.type_code:
-            serializer.unpacker_options['ext_hook'] = self.ext_hook
+            serializer.unpacker_options["ext_hook"] = self.ext_hook
         else:
-            serializer.unpacker_options['object_hook'] = self.default_decoder
+            serializer.unpacker_options["object_hook"] = self.default_decoder
 
     def ext_hook(self, code: int, data: bytes):
         if code == self.type_code:
@@ -48,13 +48,14 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec):
             return ExtType(code, data)
 
     def wrap_state_ext_type(self, typename: str, state):
-        data = typename.encode('utf-8') + b':' + self.serializer.serialize(state)
+        data = typename.encode("utf-8") + b":" + self.serializer.serialize(state)
         return ExtType(self.type_code, data)
 
     def unwrap_state_ext_type(
-            self, wrapped_state: bytes) -> Union[Tuple[str, Any], Tuple[None, None]]:
-        typename, payload = wrapped_state.split(b':', 1)
-        return typename.decode('utf-8'), self.serializer.deserialize(payload)
+        self, wrapped_state: bytes
+    ) -> Union[Tuple[str, Any], Tuple[None, None]]:
+        typename, payload = wrapped_state.split(b":", 1)
+        return typename.decode("utf-8"), self.serializer.deserialize(payload)
 
 
 class MsgpackSerializer(CustomizableSerializer):
@@ -83,18 +84,26 @@ class MsgpackSerializer(CustomizableSerializer):
         return marshalled objects as-is
     """
 
-    __slots__ = ('packer_options', 'unpacker_options', 'custom_type_codec', '_marshallers',
-                 '_unmarshallers')
+    __slots__ = (
+        "packer_options",
+        "unpacker_options",
+        "custom_type_codec",
+        "_marshallers",
+        "_unmarshallers",
+    )
 
     def __init__(
-            self, packer_options: Dict[str, Any] = None, unpacker_options: Dict[str, Any] = None,
-            custom_type_codec: Union[MsgpackTypeCodec, str] = None) -> None:
+        self,
+        packer_options: Dict[str, Any] = None,
+        unpacker_options: Dict[str, Any] = None,
+        custom_type_codec: Union[MsgpackTypeCodec, str] = None,
+    ) -> None:
         assert check_argument_types()
         super().__init__(resolve_reference(custom_type_codec) or MsgpackTypeCodec())
         self.packer_options = packer_options or {}
-        self.packer_options.setdefault('use_bin_type', True)
+        self.packer_options.setdefault("use_bin_type", True)
         self.unpacker_options = unpacker_options or {}
-        self.unpacker_options.setdefault('raw', False)
+        self.unpacker_options.setdefault("raw", False)
 
     def serialize(self, obj) -> bytes:
         return packb(obj, **self.packer_options)
@@ -104,4 +113,4 @@ class MsgpackSerializer(CustomizableSerializer):
 
     @property
     def mimetype(self):
-        return 'application/msgpack'
+        return "application/msgpack"
