@@ -56,11 +56,11 @@ doc = [
 serialization = "asphalt.serialization.component:SerializationComponent"
 
 [project.entry-points."asphalt.serialization.serializers"]
-cbor = "asphalt.serialization.serializers.cbor:CBORSerializer [cbor]"
+cbor = "asphalt.serialization.serializers.cbor:CBORSerializer"
 json = "asphalt.serialization.serializers.json:JSONSerializer"
-msgpack = "asphalt.serialization.serializers.msgpack:MsgpackSerializer [msgpack]"
+msgpack = "asphalt.serialization.serializers.msgpack:MsgpackSerializer"
 pickle = "asphalt.serialization.serializers.pickle:PickleSerializer"
-yaml = "asphalt.serialization.serializers.yaml:YAMLSerializer [yaml]"
+yaml = "asphalt.serialization.serializers.yaml:YAMLSerializer"
 
 [tool.setuptools_scm]
 version_scheme = "post-release"
