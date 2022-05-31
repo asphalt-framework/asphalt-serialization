@@ -153,7 +153,7 @@ class TestCustomTypes:
 
     @pytest.mark.skipif(
         sys.version_info >= (3, 11),
-        reason="Python 3.11+ provides __getattr__() for all classes"
+        reason="Python 3.11+ provides __getattr__() for all classes",
     )
     def test_missing_getattr(self, serializer):
         testval = UnserializableSimpleType(1, "a")
