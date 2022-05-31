@@ -1,4 +1,5 @@
 import re
+import sys
 from datetime import datetime, timezone
 from functools import partial
 from types import SimpleNamespace
@@ -150,6 +151,10 @@ class TestCustomTypes:
         dt2 = serializer.deserialize(output)
         assert dt == dt2
 
+    @pytest.mark.skipif(
+        sys.version_info >= (3, 11),
+        reason="Python 3.11+ provides __getattr__() for all classes"
+    )
     def test_missing_getattr(self, serializer):
         testval = UnserializableSimpleType(1, "a")
         serializer.register_custom_type(UnserializableSimpleType)
