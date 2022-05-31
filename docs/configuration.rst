@@ -2,15 +2,16 @@ Configuration
 =============
 
 .. highlight:: yaml
+.. py:currentmodule:: asphalt.serialization
 
 To configure a serializer for your application, you need to choose a backend and then specify
 any necessary configuration values for it. The following backends are provided out of the box:
 
-* :mod:`~asphalt.serialization.serializers.cbor` (**recommended**)
-* :mod:`~asphalt.serialization.serializers.json`
-* :mod:`~asphalt.serialization.serializers.msgpack`
-* :mod:`~asphalt.serialization.serializers.pickle`
-* :mod:`~asphalt.serialization.serializers.yaml`
+* :mod:`~.serializers.cbor` (**recommended**)
+* :mod:`~.serializers.json`
+* :mod:`~.serializers.msgpack`
+* :mod:`~.serializers.pickle`
+* :mod:`~.serializers.yaml`
 
 Other backends may be provided by other components.
 
@@ -22,12 +23,14 @@ for the backend class::
       serialization:
         backend: json
 
-This configuration publishes a :class:`asphalt.serialization.api.Serializer` resource named
-``default`` using the JSON backend, accessible as ``ctx.json``. The same can be done directly
-in Python code as follows::
+This configuration publishes a :class:`.api.Serializer` resource named
+``default`` using the JSON backend. The same can be done directly in Python code as
+follows:
+
+.. code-block:: python
 
     class ApplicationComponent(ContainerComponent):
-        async def start(ctx: Context):
+        async def start(ctx: Context) -> None:
             self.add_component('serialization', backend='json')
             await super().start()
 
@@ -35,25 +38,23 @@ in Python code as follows::
 Multiple serializers
 --------------------
 
-If you need to configure multiple serializers, you can do so by using the ``serializers``
-configuration option::
+If you need to configure multiple serializers, you will need to use multiple instances
+of the serialization component::
 
     components:
       serialization:
-        serializers:
-          cbor:
-          json:
-          msgpack:
-          pickle:
-          foobar:
-            backend: json
-            context_attr: foo
-            encoding: iso-8859-15
+        backend: cbor
+      serialization2:
+        type: serialization
+        backend: msgpack
+        resource_name: msgpack
 
-The above configuration creates 5 resources of type :class:`asphalt.serialization.api.Serializer`:
+The above configuration creates two serializer resources, available under 6 different
+combinations:
 
-* ``cbor`` as ``ctx.cbor``
-* ``json`` as ``ctx.json``
-* ``msgpack`` as ``ctx.msgpack``
-* ``pickle`` as ``ctx.pickle``
-* ``foobar`` as ``ctx.foo``
+* :class:`~.api.Serializer` / ``default``
+* :class:`~.api.CustomizableSerializer` / ``default``
+* :class:`~.serializers.cbor.CBORSerializer` / ``default``
+* :class:`~.api.Serializer` / ``msgpack``
+* :class:`~.api.CustomizableSerializer` / ``msgpack``
+* :class:`~.serializers.msgpack.MsgpackSerializer` / ``msgpack``

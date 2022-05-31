@@ -3,6 +3,14 @@ Version history
 
 This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
 
+**UNRELEASED**
+
+- **BACKWARD INCOMPATIBLE** Bumped minimum Asphalt version to 4.8
+- **BACKWARD INCOMPATIBLE** Refactored component to only provide a single serializer
+  (you will have to add two components to get two serializers)
+- **BACKWARD INCOMPATIBLE** Dropped the context attribute (use dependency injection
+  instead)
+
 **5.0.1** (2022-04-14)
 
 - Fixed overly restrictive dependency constraint on Asphalt core

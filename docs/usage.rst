@@ -3,11 +3,15 @@ Using serializers
 
 Using serializers is quite straightforward::
 
-    async def handler(ctx):
-        serialized = ctx.json.serialize({'foo': 'example JSON object'})
-        original = ctx.json.deserialize(payload)
+    from asphalt.core import inject, resource
 
-This example assumes a configuration where a JSON serializer is present as ``ctx.json``.
+    @inject
+    async def handler(*, serializer: Serializer = resource()):
+        serialized = serializer.serialize({'foo': 'example JSON object'})
+        original = serializer.deserialize(payload)
+
+This example assumes a configuration where a JSON serializer is present in the context
+as the default serializer resource.
 
 To see what Python types can be serialized by every serializer, consult the documentation of the
 abstract :class:`~asphalt.serialization.api.Serializer` class.

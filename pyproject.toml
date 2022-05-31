@@ -25,7 +25,7 @@ classifiers = [
 ]
 requires-python = ">=3.7"
 dependencies = [
-    "asphalt ~= 4.6",
+    "asphalt ~= 4.8",
     "typeguard ~= 2.0",
     "msgpack ~= 1.0; extra == 'msgpack' or extra == 'test' or extra == 'doc'",
     "cbor2 ~= 5.0; extra == 'cbor' or extra == 'test' or extra == 'doc'",

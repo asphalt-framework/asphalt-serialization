@@ -3,6 +3,8 @@ import asyncio
 
 from asphalt.core import ContainerComponent, Context, run_application
 
+from asphalt.serialization.api import CustomizableSerializer
+
 
 class Book:
     def __init__(self, name, author, year, isbn, sequel=None):
@@ -18,10 +20,11 @@ class ApplicationComponent(ContainerComponent):
         self.add_component("serialization", backend="json")
         await super().start(ctx)
 
-        ctx.json.register_custom_type(Book, typename="Book")  # typename is optional
+        serializer = ctx.require_resource(CustomizableSerializer)
+        serializer.register_custom_type(Book, typename="Book")  # typename is optional
         book2 = Book("The Fall of Hyperion", "Dan Simmons", 1995, "978-0553288209")
         book1 = Book("Hyperion", "Dan Simmons", 1989, "978-0553283686", book2)
-        payload = ctx.json.serialize(book1)
+        payload = serializer.serialize(book1)
         print("JSON serialized dict:", payload.decode())
         asyncio.get_event_loop().stop()
 

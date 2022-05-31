@@ -1,50 +1,39 @@
 import pytest
 from asphalt.core.context import Context
 
-from asphalt.serialization.api import Serializer
+from asphalt.serialization.api import CustomizableSerializer, Serializer
 from asphalt.serialization.component import SerializationComponent
 from asphalt.serialization.serializers.json import JSONSerializer
+from asphalt.serialization.serializers.msgpack import MsgpackSerializer
 
 
 @pytest.mark.asyncio
 async def test_component_start():
-    component = SerializationComponent(
-        serializers={
-            "json": {"encoder_options": {"allow_nan": False}},
-            "msgpack": {"unpacker_options": {"encoding": "iso-8859-1"}},
-            "pickle": {"protocol": 3},
-            "yaml": {"safe": False},
-        }
-    )
-    async with Context() as ctx:
-        await component.start(ctx)
-
-        assert ctx.json
-        assert ctx.msgpack
-        assert ctx.pickle
-        assert ctx.yaml
-
-
-@pytest.mark.asyncio
-async def test_default_config():
     component = SerializationComponent(backend="json")
     async with Context() as ctx:
         await component.start(ctx)
 
         resource = ctx.require_resource(Serializer)
         assert isinstance(resource, JSONSerializer)
-        assert ctx.json is resource
+
+        resource2 = ctx.require_resource(CustomizableSerializer)
+        assert resource2 is resource
+
+        resource3 = ctx.require_resource(JSONSerializer)
+        assert resource3 is resource
 
 
 @pytest.mark.asyncio
-async def test_null_configs():
-    component = SerializationComponent(
-        serializers={"json": None, "msgpack": None, "pickle": None, "yaml": None}
-    )
+async def test_resource_name():
+    component = SerializationComponent(backend="msgpack", resource_name="alternate")
     async with Context() as ctx:
         await component.start(ctx)
 
-        assert ctx.json
-        assert ctx.msgpack
-        assert ctx.pickle
-        assert ctx.yaml
+        resource = ctx.require_resource(Serializer, "alternate")
+        assert isinstance(resource, MsgpackSerializer)
+
+        resource2 = ctx.require_resource(CustomizableSerializer, "alternate")
+        assert resource2 is resource
+
+        resource3 = ctx.require_resource(MsgpackSerializer, "alternate")
+        assert resource3 is resource
