@@ -10,6 +10,7 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
   (you will have to add two components to get two serializers)
 - **BACKWARD INCOMPATIBLE** Dropped the context attribute (use dependency injection
   instead)
+- Dropped explicit run-time type checking
 
 **5.0.1** (2022-04-14)
 

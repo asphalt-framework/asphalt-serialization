@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from abc import ABCMeta, abstractmethod
+from collections.abc import Callable
 from inspect import signature
-from typing import Any, Callable, Dict, Optional, Tuple, Union
+from typing import Any
 
-from typeguard import check_argument_types, qualified_name
+from asphalt.core import qualified_name
 
 from asphalt.serialization.marshalling import default_marshaller, default_unmarshaller
 
@@ -57,16 +58,16 @@ class CustomizableSerializer(Serializer):
 
     def __init__(self, custom_type_codec: CustomTypeCodec):
         self.custom_type_codec = custom_type_codec
-        self.marshallers: Dict[type, Tuple[str, Callable, bool]] = {}
-        self.unmarshallers: Dict[str, Tuple[Optional[type], Callable]] = {}
+        self.marshallers: dict[type, tuple[str, Callable, bool]] = {}
+        self.unmarshallers: dict[str, tuple[type | None, Callable]] = {}
 
     def register_custom_type(
         self,
         cls: type,
-        marshaller: Optional[Callable[[Any], Any]] = default_marshaller,
-        unmarshaller: Union[
-            Callable[[Any, Any], None], Callable[[Any], Any], None
-        ] = default_unmarshaller,
+        marshaller: Callable[[Any], Any] | None = default_marshaller,
+        unmarshaller: (
+            Callable[[Any, Any], None] | Callable[[Any], Any] | None
+        ) = default_unmarshaller,
         *,
         typename: str = None,
         wrap_state: bool = True,
@@ -94,7 +95,6 @@ class CustomizableSerializer(Serializer):
             can be recognized later for unmarshalling, ``False`` to serialize it as is
 
         """
-        assert check_argument_types()
         typename = typename or qualified_name(cls)
 
         if marshaller:
@@ -102,7 +102,7 @@ class CustomizableSerializer(Serializer):
             self.custom_type_codec.register_object_encoder_hook(self)
 
         if unmarshaller and self.custom_type_codec is not None:
-            target_cls: Optional[type] = cls
+            target_cls: type | None = cls
             if len(signature(unmarshaller).parameters) == 1:
                 target_cls = None
 

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Dict, Tuple, Union
+from collections.abc import Callable
+from typing import Any
 
 from asphalt.core import qualified_name
-from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer, CustomTypeCodec
 
@@ -21,7 +21,6 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
     serializer: CustomizableSerializer
 
     def __init__(self, type_key: str = "__type__", state_key: str = "state"):
-        assert check_argument_types()
         self.type_key = type_key
         self.state_key = state_key
         self.wrap_callback: Callable[[str, Any], Any] = self.wrap_state_dict
@@ -57,7 +56,7 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
         else:
             return unmarshaller(marshalled_state)
 
-    def wrap_state_dict(self, typename: str, state) -> Dict[str, Any]:
+    def wrap_state_dict(self, typename: str, state) -> dict[str, Any]:
         """
         Wrap the marshalled state in a dictionary.
 
@@ -72,8 +71,8 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
         return {self.type_key: typename, self.state_key: state}
 
     def unwrap_state_dict(
-        self, obj: Dict[str, Any]
-    ) -> Union[Tuple[str, Any], Tuple[None, None]]:
+        self, obj: dict[str, Any]
+    ) -> tuple[str, Any] | tuple[None, None]:
         """Unwraps a marshalled state previously wrapped using :meth:`wrap_state_dict`."""
         if len(obj) == 2:
             typename = obj.get(self.type_key)

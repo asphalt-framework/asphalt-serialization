@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from json.decoder import JSONDecoder
 from json.encoder import JSONEncoder
-from typing import Any, Dict, Union
+from typing import Any
 
 from asphalt.core import resolve_reference
-from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer
 from asphalt.serialization.object_codec import DefaultCustomTypeCodec
@@ -58,12 +57,11 @@ class JSONSerializer(CustomizableSerializer):
 
     def __init__(
         self,
-        encoder_options: Dict[str, Any] = None,
-        decoder_options: Dict[str, Any] = None,
+        encoder_options: dict[str, Any] = None,
+        decoder_options: dict[str, Any] = None,
         encoding: str = "utf-8",
-        custom_type_codec: Union[JSONTypeCodec, str] = None,
+        custom_type_codec: JSONTypeCodec | str | None = None,
     ):
-        assert check_argument_types()
         super().__init__(resolve_reference(custom_type_codec) or JSONTypeCodec())
         self.encoding = encoding
 

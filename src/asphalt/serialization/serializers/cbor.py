@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any
 
 import cbor2
 from asphalt.core import qualified_name, resolve_reference
-from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer
 from asphalt.serialization.object_codec import DefaultCustomTypeCodec
@@ -23,7 +22,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
     .. note:: Custom wrapping hooks are ignored when CBORTags are used.
     """
 
-    def __init__(self, type_tag: Optional[int] = 4554, **kwargs):
+    def __init__(self, type_tag: int | None = 4554, **kwargs):
         super().__init__(**kwargs)
         self.type_tag = type_tag
 
@@ -118,11 +117,10 @@ class CBORSerializer(CustomizableSerializer):
 
     def __init__(
         self,
-        encoder_options: Dict[str, Any] = None,
-        decoder_options: Dict[str, Any] = None,
-        custom_type_codec: Union[CBORTypeCodec, str] = None,
+        encoder_options: dict[str, Any] = None,
+        decoder_options: dict[str, Any] = None,
+        custom_type_codec: CBORTypeCodec | str | None = None,
     ) -> None:
-        assert check_argument_types()
         super().__init__(resolve_reference(custom_type_codec) or CBORTypeCodec())
         self.encoder_options = encoder_options or {}
         self.decoder_options = decoder_options or {}

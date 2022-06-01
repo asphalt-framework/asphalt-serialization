@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any
 
 from asphalt.core import resolve_reference
 from msgpack import ExtType, packb, unpackb
-from typeguard import check_argument_types
 
 from asphalt.serialization.api import CustomizableSerializer
 from asphalt.serialization.object_codec import DefaultCustomTypeCodec
@@ -21,8 +20,7 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec):
         wrapping
     """
 
-    def __init__(self, type_code: Optional[int] = 119, **kwargs):
-        assert check_argument_types()
+    def __init__(self, type_code: int | None = 119, **kwargs):
         super().__init__(**kwargs)
         self.type_code = type_code
 
@@ -53,7 +51,7 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec):
 
     def unwrap_state_ext_type(
         self, wrapped_state: bytes
-    ) -> Union[Tuple[str, Any], Tuple[None, None]]:
+    ) -> tuple[str, Any] | tuple[None, None]:
         typename, payload = wrapped_state.split(b":", 1)
         return typename.decode("utf-8"), self.serializer.deserialize(payload)
 
@@ -94,11 +92,10 @@ class MsgpackSerializer(CustomizableSerializer):
 
     def __init__(
         self,
-        packer_options: Dict[str, Any] = None,
-        unpacker_options: Dict[str, Any] = None,
-        custom_type_codec: Union[MsgpackTypeCodec, str] = None,
+        packer_options: dict[str, Any] = None,
+        unpacker_options: dict[str, Any] = None,
+        custom_type_codec: MsgpackTypeCodec | str | None = None,
     ) -> None:
-        assert check_argument_types()
         super().__init__(resolve_reference(custom_type_codec) or MsgpackTypeCodec())
         self.packer_options = packer_options or {}
         self.packer_options.setdefault("use_bin_type", True)
