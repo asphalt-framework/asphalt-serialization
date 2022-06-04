@@ -122,8 +122,8 @@ class CBORSerializer(CustomizableSerializer):
         custom_type_codec: CBORTypeCodec | str | None = None,
     ) -> None:
         super().__init__(resolve_reference(custom_type_codec) or CBORTypeCodec())
-        self.encoder_options = encoder_options or {}
-        self.decoder_options = decoder_options or {}
+        self.encoder_options: dict[str, Any] = encoder_options or {}
+        self.decoder_options: dict[str, Any] = decoder_options or {}
 
     def serialize(self, obj: Any) -> bytes:
         return cbor2.dumps(obj, **self.encoder_options)  # type: ignore[no-any-return]

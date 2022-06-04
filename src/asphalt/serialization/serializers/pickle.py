@@ -23,7 +23,7 @@ class PickleSerializer(Serializer):
             0 <= protocol <= pickle.HIGHEST_PROTOCOL
         ), f'"protocol" must be between 0 and {pickle.HIGHEST_PROTOCOL}'
 
-        self.protocol = protocol
+        self.protocol: int = protocol
 
     def serialize(self, obj: Any) -> bytes:
         return pickle.dumps(obj, protocol=self.protocol)

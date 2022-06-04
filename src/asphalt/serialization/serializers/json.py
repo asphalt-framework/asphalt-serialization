@@ -63,15 +63,15 @@ class JSONSerializer(CustomizableSerializer):
         custom_type_codec: JSONTypeCodec | str | None = None,
     ):
         super().__init__(resolve_reference(custom_type_codec) or JSONTypeCodec())
-        self.encoding = encoding
+        self.encoding: str = encoding
 
-        self.encoder_options = encoder_options or {}
+        self.encoder_options: dict[str, Any] = encoder_options or {}
         self.encoder_options["default"] = resolve_reference(
             self.encoder_options.get("default")
         )
         self._encoder = JSONEncoder(**self.encoder_options)
 
-        self.decoder_options = decoder_options or {}
+        self.decoder_options: dict[str, Any] = decoder_options or {}
         self.decoder_options["object_hook"] = resolve_reference(
             self.decoder_options.get("object_hook")
         )

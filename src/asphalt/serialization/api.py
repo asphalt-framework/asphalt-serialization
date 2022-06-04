@@ -69,7 +69,7 @@ class CustomizableSerializer(Serializer):
     __slots__ = ("custom_type_codec", "marshallers", "unmarshallers")
 
     def __init__(self: T_Serializer, custom_type_codec: CustomTypeCodec[T_Serializer]):
-        self.custom_type_codec = custom_type_codec
+        self.custom_type_codec: CustomTypeCodec[T_Serializer] = custom_type_codec
         self.marshallers: dict[type, tuple[str, MarshallCallback, bool]] = {}
         self.unmarshallers: dict[
             str, tuple[type[object] | None, UnmarshallCallback]

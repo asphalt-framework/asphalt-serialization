@@ -97,9 +97,9 @@ class MsgpackSerializer(CustomizableSerializer):
         custom_type_codec: MsgpackTypeCodec | str | None = None,
     ) -> None:
         super().__init__(resolve_reference(custom_type_codec) or MsgpackTypeCodec())
-        self.packer_options = packer_options or {}
+        self.packer_options: dict[str, Any] = packer_options or {}
         self.packer_options.setdefault("use_bin_type", True)
-        self.unpacker_options = unpacker_options or {}
+        self.unpacker_options: dict[str, Any] = unpacker_options or {}
         self.unpacker_options.setdefault("raw", False)
 
     def serialize(self, obj: Any) -> bytes:
