@@ -13,11 +13,11 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec["MsgpackSerializer"]):
     """
     Default custom type codec implementation for :class:`~.MsgpackSerializer`.
 
-    Wraps marshalled state in either msgpack's ExtType objects (the default) or dicts (with
-    ``type_code=None``).
+    Wraps marshalled state in either msgpack's ExtType objects (the default) or dicts
+    (with ``type_code=None``).
 
-    :param type_code: msgpack type code to use, or ``None`` to use JSON compatible dict-based
-        wrapping
+    :param type_code: msgpack type code to use, or ``None`` to use JSON compatible
+        dict-based wrapping
     """
 
     def __init__(self, type_code: int | None = 119, **kwargs: Any):
@@ -60,15 +60,15 @@ class MsgpackSerializer(CustomizableSerializer):
     """
     Serializes objects using the msgpack library.
 
-    The following defaults are passed to packer/unpacker and can be overridden by setting values
-    for the options explicitly:
+    The following defaults are passed to packer/unpacker and can be overridden by
+    setting values for the options explicitly:
 
     * ``use_bin_type=True`` (packer)
     * ``raw=False`` (unpacker)
 
     To use this serializer backend, the ``msgpack`` library must be installed.
-    A convenient way to do this is to install ``asphalt-serialization`` with the ``msgpack``
-    extra:
+    A convenient way to do this is to install ``asphalt-serialization`` with the
+    ``msgpack`` extra:
 
     .. code-block:: shell
 
@@ -78,8 +78,8 @@ class MsgpackSerializer(CustomizableSerializer):
 
     :param packer_options: keyword arguments passed to :func:`msgpack.packb`
     :param unpacker_options: keyword arguments passed to :func:`msgpack.unpackb`
-    :param custom_type_codec: wrapper to use to wrap custom types after marshalling, or ``None`` to
-        return marshalled objects as-is
+    :param custom_type_codec: wrapper to use to wrap custom types after marshalling, or
+        ``None`` to return marshalled objects as-is
     """
 
     __slots__ = (

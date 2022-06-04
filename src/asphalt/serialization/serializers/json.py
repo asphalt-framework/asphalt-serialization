@@ -29,8 +29,8 @@ class JSONSerializer(CustomizableSerializer):
     """
     Serializes objects using JSON (JavaScript Object Notation).
 
-    See the :mod:`json` module documentation in the standard library for more information on
-    available options.
+    See the :mod:`json` module documentation in the standard library for more
+    information on available options.
 
     Certain options can resolve references to objects:
 

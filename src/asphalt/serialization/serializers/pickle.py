@@ -10,8 +10,8 @@ class PickleSerializer(Serializer):
     """
     Serializes objects using the standard library :mod:`pickle` module.
 
-    .. warning:: This serializer is insecure because it allows execution of arbitrary code when
-        deserializing. Avoid using this if at all possible.
+    .. warning:: This serializer is insecure because it allows execution of arbitrary
+        code when deserializing. Avoid using this if at all possible.
 
     :param protocol: pickle protocol level to use (defaults to the highest possible)
     """

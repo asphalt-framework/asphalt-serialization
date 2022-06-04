@@ -10,7 +10,8 @@ from .api import CustomTypeCodec, T_Serializer
 
 class DefaultCustomTypeCodec(Generic[T_Serializer], CustomTypeCodec[T_Serializer]):
     """
-    Provides default wrappers for implementing :class:`~asphalt.serialization.api.CustomTypeCodec`.
+    Provides default wrappers for implementing
+    :class:`~asphalt.serialization.api.CustomTypeCodec`.
 
     :ivar CustomizableSerializer serializer: the associated serializer
 
@@ -62,8 +63,9 @@ class DefaultCustomTypeCodec(Generic[T_Serializer], CustomTypeCodec[T_Serializer
         """
         Wrap the marshalled state in a dictionary.
 
-        The returned dictionary has two keys, corresponding to the ``type_key`` and ``state_key``
-        options. The former holds the type name and the latter holds the marshalled state.
+        The returned dictionary has two keys, corresponding to the ``type_key`` and
+        ``state_key`` options. The former holds the type name and the latter holds the
+        marshalled state.
 
         :param typename: registered name of the custom type
         :param state: the marshalled state of the object

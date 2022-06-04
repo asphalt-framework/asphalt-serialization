@@ -150,7 +150,10 @@ class TestCustomTypes:
         assert outval == testval2
 
     def test_custom_state(self, serializer: CustomizableSerializer) -> None:
-        """Test that marshallers and umarshallers can be embedded into the relevant class."""
+        """
+        Test that marshallers and umarshallers can be embedded into the relevant class.
+
+        """
         serializer.register_custom_type(
             CustomStateSimpleType,
             CustomStateSimpleType.marshal,
@@ -162,7 +165,11 @@ class TestCustomTypes:
         assert outval == testval
 
     def test_marshal_builtin(self, serializer: CustomizableSerializer) -> None:
-        """Test that a single-argument unmarshaller can be used to unmarshal built-in types."""
+        """
+        Test that a single-argument unmarshaller can be used to unmarshal built-in
+        types.
+
+        """
         serializer.register_custom_type(datetime, marshal_datetime, unmarshal_datetime)
         dt = datetime(2016, 9, 9, 7, 21, 16, tzinfo=timezone.utc)
         output = serializer.serialize(dt)
@@ -178,8 +185,8 @@ class TestCustomTypes:
         serializer.register_custom_type(UnserializableSimpleType)
         exc = pytest.raises(TypeError, serializer.serialize, testval)
         exc.match(
-            "'test_serializers.UnserializableSimpleType' has no __dict__ attribute and does "
-            "not implement __getstate__()"
+            "'test_serializers.UnserializableSimpleType' has no __dict__ attribute and "
+            "does not implement __getstate__()"
         )
 
     def test_missing_setattr(self, serializer: CustomizableSerializer) -> None:
@@ -188,8 +195,8 @@ class TestCustomTypes:
         serialized = serializer.serialize(testval)
         exc = pytest.raises(Exception, serializer.deserialize, serialized)
         exc.match(
-            "'test_serializers.UnserializableSimpleType' has no __dict__ attribute and does not "
-            "implement __setstate__()"
+            "'test_serializers.UnserializableSimpleType' has no __dict__ attribute and "
+            "does not implement __setstate__()"
         )
 
     def test_missing_marshaller(

@@ -13,19 +13,20 @@ class YAMLSerializer(Serializer):
     Serializes objects to and from YAML format.
 
     To use this serializer backend, the ``ruamel.yaml`` library must be installed.
-    A convenient way to do this is to install ``asphalt-serialization`` with the ``yaml``
-    extra:
+    A convenient way to do this is to install ``asphalt-serialization`` with the
+    ``yaml`` extra:
 
     .. code-block:: shell
 
         $ pip install asphalt-serialization[yaml]
 
-    .. warning:: This serializer is insecure in unsafe mode because it allows execution of
-      arbitrary code when deserializing.
+    .. warning:: This serializer is insecure in unsafe mode because it allows execution
+      of arbitrary code when deserializing.
 
     .. seealso:: `PyYAML documentation <http://pyyaml.org/wiki/PyYAMLDocumentation>`_
 
-    :param safe: ``True`` to (de)serialize in safe mode, ``False`` to enable extended tags
+    :param safe: ``True`` to (de)serialize in safe mode, ``False`` to enable extended
+        tags
     """
 
     __slots__ = "_yaml", "_dumper_options"

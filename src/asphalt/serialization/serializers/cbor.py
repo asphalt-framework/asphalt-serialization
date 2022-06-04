@@ -16,8 +16,8 @@ class CBORTypeCodec(DefaultCustomTypeCodec["CBORSerializer"]):
     Wraps marshalled state in either CBORTag objects (the default) or dicts (with
     ``type_tag=None``).
 
-    :param type_tag: CBOR tag number to use, or ``None`` to use JSON compatible dict-based
-        wrapping
+    :param type_tag: CBOR tag number to use, or ``None`` to use JSON compatible
+        dict-based wrapping
 
     .. note:: Custom wrapping hooks are ignored when CBORTags are used.
     """
@@ -93,7 +93,8 @@ class CBORSerializer(CustomizableSerializer):
     Serializes objects using CBOR (Concise Binary Object Representation).
 
     To use this serializer backend, the ``cbor2`` library must be installed.
-    A convenient way to do this is to install ``asphalt-serialization`` with the ``cbor`` extra:
+    A convenient way to do this is to install ``asphalt-serialization`` with the
+    ``cbor`` extra:
 
     .. code-block:: shell
 
@@ -103,8 +104,8 @@ class CBORSerializer(CustomizableSerializer):
 
     :param encoder_options: keyword arguments passed to ``cbor2.dumps()``
     :param decoder_options: keyword arguments passed to ``cbor2.loads()``
-    :param custom_type_codec: wrapper to use to wrap custom types after marshalling, or ``None`` to
-        return marshalled objects as-is
+    :param custom_type_codec: wrapper to use to wrap custom types after marshalling, or
+        ``None`` to return marshalled objects as-is
     """
 
     __slots__ = (
