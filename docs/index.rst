@@ -12,5 +12,4 @@ Table of contents
    usage
    extending
    versionhistory
-
-* :ref:`API reference <modindex>`
+   py-modindex

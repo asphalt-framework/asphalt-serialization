@@ -16,7 +16,7 @@ class DefaultCustomTypeCodec(Generic[T_Serializer], CustomTypeCodec[T_Serializer
     :ivar CustomizableSerializer serializer: the associated serializer
 
     :param type_key: dict key for the type name
-    :param state_key dict key for the marshalled state
+    :param state_key: dict key for the marshalled state
     """
 
     serializer: T_Serializer

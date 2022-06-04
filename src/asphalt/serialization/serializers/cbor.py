@@ -102,8 +102,10 @@ class CBORSerializer(CustomizableSerializer):
 
     .. seealso:: `cbor2 documentation <https://pypi.io/project/cbor2/>`_
 
-    :param encoder_options: keyword arguments passed to ``cbor2.dumps()``
-    :param decoder_options: keyword arguments passed to ``cbor2.loads()``
+    :param encoder_options: keyword arguments passed to
+        :func:`cbor2.dumps() <cbor2.encoder.dumps>`
+    :param decoder_options: keyword arguments passed to
+        :func:`cbor2.loads() <cbor2.decoder.loads>`
     :param custom_type_codec: wrapper to use to wrap custom types after marshalling, or
         ``None`` to return marshalled objects as-is
     """

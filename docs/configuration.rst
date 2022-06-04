@@ -23,7 +23,7 @@ for the backend class::
       serialization:
         backend: json
 
-This configuration publishes a :class:`.api.Serializer` resource named
+This configuration publishes a :class:`~.api.Serializer` resource named
 ``default`` using the JSON backend. The same can be done directly in Python code as
 follows:
 

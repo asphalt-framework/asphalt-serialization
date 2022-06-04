@@ -21,7 +21,7 @@ v = parse(version(project))
 version = v.base_version
 release = v.public
 
-language = None
+language = "en"
 
 exclude_patterns = ["_build"]
 pygments_style = "sphinx"
@@ -35,5 +35,6 @@ htmlhelp_basename = project.replace("-", "") + "doc"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3/", None),
     "asphalt": ("https://asphalt.readthedocs.org/en/latest/", None),
-    "msgpack": ("https://pythonhosted.org/msgpack-python/", None),
+    "msgpack": ("https://msgpack-python.readthedocs.org/en/latest/", None),
+    "cbor2": ("https://cbor2.readthedocs.org/en/latest/", None),
 }
