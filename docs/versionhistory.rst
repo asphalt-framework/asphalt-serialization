@@ -3,7 +3,7 @@ Version history
 
 This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
 
-**UNRELEASED**
+**6.0.0** (2022-06-04)
 
 - **BACKWARD INCOMPATIBLE** Bumped minimum Asphalt version to 4.8
 - **BACKWARD INCOMPATIBLE** Refactored component to only provide a single serializer
