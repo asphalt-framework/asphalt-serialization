@@ -11,6 +11,8 @@ This library adheres to `Semantic Versioning 2.0 <http://semver.org/>`_.
 - **BACKWARD INCOMPATIBLE** Dropped the context attribute (use dependency injection
   instead)
 - Dropped explicit run-time type checking
+- Fixed msgpack encoder hooks being set where decoder hooks were supposed to be set, and
+  vice versa
 
 **5.0.1** (2022-04-14)
 

@@ -149,6 +149,15 @@ class TestCustomTypes:
         outval = serializer.deserialize(output)
         assert outval == testval2
 
+    def test_only_unmarshaller(self, serializer: CustomizableSerializer) -> None:
+        serializer.register_custom_type(SimpleType, marshaller=None)
+        testval = SimpleType(1, {"a": 1})
+        serializer2 = serializer.__class__()
+        serializer2.register_custom_type(SimpleType)
+        output = serializer2.serialize(testval)
+        outval = serializer.deserialize(output)
+        assert outval == testval
+
     def test_custom_state(self, serializer: CustomizableSerializer) -> None:
         """
         Test that marshallers and umarshallers can be embedded into the relevant class.

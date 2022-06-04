@@ -28,11 +28,11 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec["MsgpackSerializer"]):
             self.wrap_callback = self.wrap_state_ext_type
             self.unwrap_callback = self.unwrap_state_ext_type
 
-    def register_object_decoder_hook(self, serializer: MsgpackSerializer) -> None:
+    def register_object_encoder_hook(self, serializer: MsgpackSerializer) -> None:
         self.serializer = serializer
         serializer.packer_options["default"] = self.default_encoder
 
-    def register_object_encoder_hook(self, serializer: MsgpackSerializer) -> None:
+    def register_object_decoder_hook(self, serializer: MsgpackSerializer) -> None:
         self.serializer = serializer
         if self.type_code:
             serializer.unpacker_options["ext_hook"] = self.ext_hook
