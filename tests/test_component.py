@@ -8,7 +8,7 @@ from asphalt.serialization.serializers.msgpack import MsgpackSerializer
 
 
 @pytest.mark.asyncio
-async def test_component_start():
+async def test_component_start() -> None:
     component = SerializationComponent(backend="json")
     async with Context() as ctx:
         await component.start(ctx)
@@ -24,7 +24,7 @@ async def test_component_start():
 
 
 @pytest.mark.asyncio
-async def test_resource_name():
+async def test_resource_name() -> None:
     component = SerializationComponent(backend="msgpack", resource_name="alternate")
     async with Context() as ctx:
         await component.start(ctx)

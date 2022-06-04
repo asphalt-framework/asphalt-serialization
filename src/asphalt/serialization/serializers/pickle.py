@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import pickle
+from typing import Any
 
-from asphalt.serialization.api import Serializer
+from ..api import Serializer
 
 
 class PickleSerializer(Serializer):
@@ -24,12 +25,12 @@ class PickleSerializer(Serializer):
 
         self.protocol = protocol
 
-    def serialize(self, obj) -> bytes:
+    def serialize(self, obj: Any) -> bytes:
         return pickle.dumps(obj, protocol=self.protocol)
 
-    def deserialize(self, payload: bytes):
+    def deserialize(self, payload: bytes) -> Any:
         return pickle.loads(payload)
 
     @property
-    def mimetype(self):
+    def mimetype(self) -> str:
         return "application/python-pickle"

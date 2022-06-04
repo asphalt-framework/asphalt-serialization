@@ -7,7 +7,7 @@ from asphalt.serialization.api import Serializer
 
 
 class ApplicationComponent(ContainerComponent):
-    async def start(self, ctx: Context):
+    async def start(self, ctx: Context) -> None:
         self.add_component("serialization", backend="json")
         await super().start(ctx)
 

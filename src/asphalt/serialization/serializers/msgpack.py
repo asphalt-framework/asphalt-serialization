@@ -5,11 +5,11 @@ from typing import Any
 from asphalt.core import resolve_reference
 from msgpack import ExtType, packb, unpackb
 
-from asphalt.serialization.api import CustomizableSerializer
-from asphalt.serialization.object_codec import DefaultCustomTypeCodec
+from ..api import CustomizableSerializer
+from ..object_codec import DefaultCustomTypeCodec
 
 
-class MsgpackTypeCodec(DefaultCustomTypeCodec):
+class MsgpackTypeCodec(DefaultCustomTypeCodec["MsgpackSerializer"]):
     """
     Default custom type codec implementation for :class:`~.MsgpackSerializer`.
 
@@ -20,7 +20,7 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec):
         wrapping
     """
 
-    def __init__(self, type_code: int | None = 119, **kwargs):
+    def __init__(self, type_code: int | None = 119, **kwargs: Any):
         super().__init__(**kwargs)
         self.type_code = type_code
 
@@ -39,13 +39,13 @@ class MsgpackTypeCodec(DefaultCustomTypeCodec):
         else:
             serializer.unpacker_options["object_hook"] = self.default_decoder
 
-    def ext_hook(self, code: int, data: bytes):
+    def ext_hook(self, code: int, data: bytes) -> Any:
         if code == self.type_code:
             return self.default_decoder(data)
         else:
             return ExtType(code, data)
 
-    def wrap_state_ext_type(self, typename: str, state):
+    def wrap_state_ext_type(self, typename: str, state: Any) -> ExtType:
         data = typename.encode("utf-8") + b":" + self.serializer.serialize(state)
         return ExtType(self.type_code, data)
 
@@ -92,8 +92,8 @@ class MsgpackSerializer(CustomizableSerializer):
 
     def __init__(
         self,
-        packer_options: dict[str, Any] = None,
-        unpacker_options: dict[str, Any] = None,
+        packer_options: dict[str, Any] | None = None,
+        unpacker_options: dict[str, Any] | None = None,
         custom_type_codec: MsgpackTypeCodec | str | None = None,
     ) -> None:
         super().__init__(resolve_reference(custom_type_codec) or MsgpackTypeCodec())
@@ -102,12 +102,12 @@ class MsgpackSerializer(CustomizableSerializer):
         self.unpacker_options = unpacker_options or {}
         self.unpacker_options.setdefault("raw", False)
 
-    def serialize(self, obj) -> bytes:
-        return packb(obj, **self.packer_options)
+    def serialize(self, obj: Any) -> bytes:
+        return packb(obj, **self.packer_options)  # type: ignore[no-any-return]
 
-    def deserialize(self, payload: bytes):
+    def deserialize(self, payload: bytes) -> Any:
         return unpackb(payload, **self.unpacker_options)
 
     @property
-    def mimetype(self):
+    def mimetype(self) -> str:
         return "application/msgpack"

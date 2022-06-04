@@ -6,11 +6,11 @@ from typing import Any
 
 from asphalt.core import resolve_reference
 
-from asphalt.serialization.api import CustomizableSerializer
-from asphalt.serialization.object_codec import DefaultCustomTypeCodec
+from ..api import CustomizableSerializer
+from ..object_codec import DefaultCustomTypeCodec
 
 
-class JSONTypeCodec(DefaultCustomTypeCodec):
+class JSONTypeCodec(DefaultCustomTypeCodec["JSONSerializer"]):
     """Default state wrapper implementation for :class:`~.JSONSerializer`."""
 
     def register_object_encoder_hook(self, serializer: JSONSerializer) -> None:
@@ -57,8 +57,8 @@ class JSONSerializer(CustomizableSerializer):
 
     def __init__(
         self,
-        encoder_options: dict[str, Any] = None,
-        decoder_options: dict[str, Any] = None,
+        encoder_options: dict[str, Any] | None = None,
+        decoder_options: dict[str, Any] | None = None,
         encoding: str = "utf-8",
         custom_type_codec: JSONTypeCodec | str | None = None,
     ):
@@ -80,13 +80,13 @@ class JSONSerializer(CustomizableSerializer):
         )
         self._decoder = JSONDecoder(**self.decoder_options)
 
-    def serialize(self, obj) -> bytes:
+    def serialize(self, obj: Any) -> bytes:
         return self._encoder.encode(obj).encode(self.encoding)
 
-    def deserialize(self, payload: bytes):
+    def deserialize(self, payload: bytes) -> Any:
         text_payload = payload.decode(self.encoding)
         return self._decoder.decode(text_payload)
 
     @property
-    def mimetype(self):
+    def mimetype(self) -> str:
         return "application/json"

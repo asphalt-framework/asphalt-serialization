@@ -1,22 +1,25 @@
 """An example that demonstrates how to serialize custom types."""
+from __future__ import annotations
+
 import asyncio
+from dataclasses import dataclass
 
 from asphalt.core import ContainerComponent, Context, run_application
 
 from asphalt.serialization.api import CustomizableSerializer
 
 
+@dataclass
 class Book:
-    def __init__(self, name, author, year, isbn, sequel=None):
-        self.name = name
-        self.author = author
-        self.year = year
-        self.isbn = isbn
-        self.sequel = sequel
+    name: str
+    author: str
+    year: int
+    isbn: str
+    sequel: Book | None = None
 
 
 class ApplicationComponent(ContainerComponent):
-    async def start(self, ctx: Context):
+    async def start(self, ctx: Context) -> None:
         self.add_component("serialization", backend="json")
         await super().start(ctx)
 

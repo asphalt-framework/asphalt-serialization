@@ -5,7 +5,7 @@ from typing import Any
 
 from asphalt.core import Component, Context, PluginContainer
 
-from asphalt.serialization.api import CustomizableSerializer, Serializer
+from .api import CustomizableSerializer, Serializer
 
 serializer_types = PluginContainer("asphalt.serialization.serializers", Serializer)
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class SerializationComponent(Component):
         self.serializer = serializer_types.create_object(backend, **options)
 
     async def start(self, ctx: Context) -> None:
-        types = [Serializer, type(self.serializer)]
+        types: list[type] = [Serializer, type(self.serializer)]
         if isinstance(self.serializer, CustomizableSerializer):
             types.append(CustomizableSerializer)
 

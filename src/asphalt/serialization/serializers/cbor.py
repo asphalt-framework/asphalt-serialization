@@ -5,11 +5,11 @@ from typing import Any
 import cbor2
 from asphalt.core import qualified_name, resolve_reference
 
-from asphalt.serialization.api import CustomizableSerializer
-from asphalt.serialization.object_codec import DefaultCustomTypeCodec
+from ..api import CustomizableSerializer
+from ..object_codec import DefaultCustomTypeCodec
 
 
-class CBORTypeCodec(DefaultCustomTypeCodec):
+class CBORTypeCodec(DefaultCustomTypeCodec["CBORSerializer"]):
     """
     Default custom type codec implementation for :class:`~.CBORSerializer`.
 
@@ -22,7 +22,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
     .. note:: Custom wrapping hooks are ignored when CBORTags are used.
     """
 
-    def __init__(self, type_tag: int | None = 4554, **kwargs):
+    def __init__(self, type_tag: int | None = 4554, **kwargs: Any):
         super().__init__(**kwargs)
         self.type_tag = type_tag
 
@@ -42,7 +42,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
         else:
             serializer.decoder_options["object_hook"] = self.cbor_default_decoder
 
-    def cbor_tag_encoder(self, encoder: cbor2.CBOREncoder, obj):
+    def cbor_tag_encoder(self, encoder: cbor2.CBOREncoder, obj: Any) -> Any:
         try:
             typename, marshaller, wrap_state = self.serializer.marshallers[
                 obj.__class__
@@ -60,7 +60,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
         else:
             encoder.encode(marshalled_state)
 
-    def cbor_tag_decoder(self, decoder: cbor2.CBORDecoder, tag: cbor2.CBORTag):
+    def cbor_tag_decoder(self, decoder: cbor2.CBORDecoder, tag: cbor2.CBORTag) -> Any:
         if tag.tag != self.type_tag:
             return tag
 
@@ -74,17 +74,17 @@ class CBORTypeCodec(DefaultCustomTypeCodec):
             instance = cls.__new__(cls)
             decoder.set_shareable(instance)
             marshalled_state = decoder.decode_from_bytes(serialized_state)
-            unmarshaller(instance, marshalled_state)
+            unmarshaller(instance, marshalled_state)  # type: ignore[call-arg]
             return instance
         else:
             marshalled_state = decoder.decode_from_bytes(serialized_state)
-            return unmarshaller(marshalled_state)
+            return unmarshaller(marshalled_state)  # type: ignore[call-arg]
 
-    def cbor_default_encoder(self, encoder: cbor2.CBOREncoder, obj):
+    def cbor_default_encoder(self, encoder: cbor2.CBOREncoder, obj: Any) -> None:
         encoded = self.default_encoder(obj)
         encoder.encode(encoded)
 
-    def cbor_default_decoder(self, decoder: cbor2.CBORDecoder, obj):
+    def cbor_default_decoder(self, decoder: cbor2.CBORDecoder, obj: Any) -> Any:
         return self.default_decoder(obj)
 
 
@@ -117,20 +117,20 @@ class CBORSerializer(CustomizableSerializer):
 
     def __init__(
         self,
-        encoder_options: dict[str, Any] = None,
-        decoder_options: dict[str, Any] = None,
+        encoder_options: dict[str, Any] | None = None,
+        decoder_options: dict[str, Any] | None = None,
         custom_type_codec: CBORTypeCodec | str | None = None,
     ) -> None:
         super().__init__(resolve_reference(custom_type_codec) or CBORTypeCodec())
         self.encoder_options = encoder_options or {}
         self.decoder_options = decoder_options or {}
 
-    def serialize(self, obj) -> bytes:
-        return cbor2.dumps(obj, **self.encoder_options)
+    def serialize(self, obj: Any) -> bytes:
+        return cbor2.dumps(obj, **self.encoder_options)  # type: ignore[no-any-return]
 
-    def deserialize(self, payload: bytes):
+    def deserialize(self, payload: bytes) -> Any:
         return cbor2.loads(payload, **self.decoder_options)
 
     @property
-    def mimetype(self):
+    def mimetype(self) -> str:
         return "application/cbor"

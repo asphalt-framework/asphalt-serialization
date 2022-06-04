@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, Generic
 
 from asphalt.core import qualified_name
 
-from asphalt.serialization.api import CustomizableSerializer, CustomTypeCodec
+from .api import CustomTypeCodec, T_Serializer
 
 
-class DefaultCustomTypeCodec(CustomTypeCodec):
+class DefaultCustomTypeCodec(Generic[T_Serializer], CustomTypeCodec[T_Serializer]):
     """
     Provides default wrappers for implementing :class:`~asphalt.serialization.api.CustomTypeCodec`.
 
@@ -18,15 +18,17 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
     :param state_key dict key for the marshalled state
     """
 
-    serializer: CustomizableSerializer
+    serializer: T_Serializer
 
     def __init__(self, type_key: str = "__type__", state_key: str = "state"):
         self.type_key = type_key
         self.state_key = state_key
         self.wrap_callback: Callable[[str, Any], Any] = self.wrap_state_dict
-        self.unwrap_callback: Callable[[Any], Any] = self.unwrap_state_dict
+        self.unwrap_callback: Callable[
+            [Any], tuple[str, Any] | tuple[None, None]
+        ] = self.unwrap_state_dict
 
-    def default_encoder(self, obj):
+    def default_encoder(self, obj: Any) -> Any:
         obj_type = obj.__class__
         try:
             typename, marshaller, wrap_state = self.serializer.marshallers[obj_type]
@@ -38,7 +40,7 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
         state = marshaller(obj)
         return self.wrap_callback(typename, state) if wrap_state else state
 
-    def default_decoder(self, obj):
+    def default_decoder(self, obj: Any) -> Any:
         """Handle a dict that might contain a wrapped state for a custom type."""
         typename, marshalled_state = self.unwrap_callback(obj)
         if typename is None:
@@ -51,12 +53,12 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
 
         if cls is not None:
             instance = cls.__new__(cls)
-            unmarshaller(instance, marshalled_state)
+            unmarshaller(instance, marshalled_state)  # type: ignore[call-arg]
             return instance
         else:
-            return unmarshaller(marshalled_state)
+            return unmarshaller(marshalled_state)  # type: ignore[call-arg]
 
-    def wrap_state_dict(self, typename: str, state) -> dict[str, Any]:
+    def wrap_state_dict(self, typename: str, state: Any) -> dict[str, Any]:
         """
         Wrap the marshalled state in a dictionary.
 
@@ -73,7 +75,10 @@ class DefaultCustomTypeCodec(CustomTypeCodec):
     def unwrap_state_dict(
         self, obj: dict[str, Any]
     ) -> tuple[str, Any] | tuple[None, None]:
-        """Unwraps a marshalled state previously wrapped using :meth:`wrap_state_dict`."""
+        """
+        Unwrap a marshalled state previously wrapped using :meth:`wrap_state_dict`.
+
+        """
         if len(obj) == 2:
             typename = obj.get(self.type_key)
             state = obj.get(self.state_key)

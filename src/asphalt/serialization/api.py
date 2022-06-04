@@ -1,13 +1,24 @@
 from __future__ import annotations
 
+import sys
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable
+from collections.abc import Callable  # noqa: F401
 from inspect import signature
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from asphalt.core import qualified_name
 
-from asphalt.serialization.marshalling import default_marshaller, default_unmarshaller
+from .marshalling import default_marshaller, default_unmarshaller
+
+if sys.version_info >= (3, 10):
+    from typing import TypeAlias
+else:
+    from typing_extensions import TypeAlias
+
+T_Serializer = TypeVar("T_Serializer", bound="CustomizableSerializer")
+T_Type = TypeVar("T_Type")
+MarshallCallback: TypeAlias = "Callable[[Any], Any]"
+UnmarshallCallback: TypeAlias = "Callable[[Any, Any], None] | Callable[[Any], Any]"
 
 
 class Serializer(metaclass=ABCMeta):
@@ -30,11 +41,11 @@ class Serializer(metaclass=ABCMeta):
     __slots__ = ()
 
     @abstractmethod
-    def serialize(self, obj) -> bytes:
+    def serialize(self, obj: Any) -> bytes:
         """Serialize a Python object into bytes."""
 
     @abstractmethod
-    def deserialize(self, payload: bytes):
+    def deserialize(self, payload: bytes) -> Any:
         """Deserialize bytes into a Python object."""
 
     @property
@@ -45,8 +56,9 @@ class Serializer(metaclass=ABCMeta):
 
 class CustomizableSerializer(Serializer):
     """
-    This abstract class defines an interface for registering custom types on a serializer so that
-    the the serializer can be extended to (de)serialize a broader array of classes.
+    This abstract class defines an interface for registering custom types on a
+    serializer so that the serializer can be extended to (de)serialize a broader array
+    of classes.
 
     :ivar marshallers: a mapping of class -> (typename, marshaller callback)
     :vartype marshallers: Dict[str, Callable]
@@ -56,20 +68,20 @@ class CustomizableSerializer(Serializer):
 
     __slots__ = ("custom_type_codec", "marshallers", "unmarshallers")
 
-    def __init__(self, custom_type_codec: CustomTypeCodec):
+    def __init__(self: T_Serializer, custom_type_codec: CustomTypeCodec[T_Serializer]):
         self.custom_type_codec = custom_type_codec
-        self.marshallers: dict[type, tuple[str, Callable, bool]] = {}
-        self.unmarshallers: dict[str, tuple[type | None, Callable]] = {}
+        self.marshallers: dict[type, tuple[str, MarshallCallback, bool]] = {}
+        self.unmarshallers: dict[
+            str, tuple[type[object] | None, UnmarshallCallback]
+        ] = {}
 
     def register_custom_type(
-        self,
+        self: T_Serializer,
         cls: type,
-        marshaller: Callable[[Any], Any] | None = default_marshaller,
-        unmarshaller: (
-            Callable[[Any, Any], None] | Callable[[Any], Any] | None
-        ) = default_unmarshaller,
+        marshaller: MarshallCallback | None = default_marshaller,
+        unmarshaller: UnmarshallCallback | None = default_unmarshaller,
         *,
-        typename: str = None,
+        typename: str | None = None,
         wrap_state: bool = True,
     ) -> None:
         """
@@ -110,11 +122,11 @@ class CustomizableSerializer(Serializer):
             self.custom_type_codec.register_object_decoder_hook(self)
 
 
-class CustomTypeCodec(metaclass=ABCMeta):
+class CustomTypeCodec(Generic[T_Serializer]):
     """Interface for customizing how custom types are encoded and decoded."""
 
     @abstractmethod
-    def register_object_encoder_hook(self, serializer: CustomizableSerializer) -> None:
+    def register_object_encoder_hook(self, serializer: T_Serializer) -> None:
         """
         Register a custom encoder callback on the serializer.
 
@@ -125,7 +137,7 @@ class CustomTypeCodec(metaclass=ABCMeta):
         """
 
     @abstractmethod
-    def register_object_decoder_hook(self, serializer: CustomizableSerializer) -> None:
+    def register_object_decoder_hook(self, serializer: T_Serializer) -> None:
         """
         Register a callback on the serializer for unmarshalling previously marshalled objects.
 

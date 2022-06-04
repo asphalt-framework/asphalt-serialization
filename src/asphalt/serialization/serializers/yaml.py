@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from io import StringIO
+from typing import Any
 
 from ruamel.yaml import YAML
 
-from asphalt.serialization.api import Serializer
+from ..api import Serializer
 
 
 class YAMLSerializer(Serializer):
@@ -32,19 +33,19 @@ class YAMLSerializer(Serializer):
     def __init__(self, safe: bool = True):
         self._yaml = YAML(typ="safe" if safe else "unsafe")
 
-    def serialize(self, obj) -> bytes:
+    def serialize(self, obj: Any) -> bytes:
         buffer = StringIO()
         self._yaml.dump(obj, buffer)
         return buffer.getvalue().encode("utf-8")
 
-    def deserialize(self, payload: bytes):
+    def deserialize(self, payload: bytes) -> Any:
         return self._yaml.load(payload)
 
     @property
-    def mimetype(self):
+    def mimetype(self) -> str:
         return "text/yaml"
 
     @property
-    def safe(self):
+    def safe(self) -> bool:
         """Returns ``True`` if the safe mode is being used with (de)serialization."""
         return "safe" in self._yaml.typ

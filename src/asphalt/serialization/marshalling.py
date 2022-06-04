@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from typing import Any
+
 from asphalt.core import qualified_name
 
 
-def default_marshaller(obj):
+def default_marshaller(obj: Any) -> Any:
     """
     Retrieve the state of the given object.
 
@@ -27,7 +29,7 @@ def default_marshaller(obj):
         ) from None
 
 
-def default_unmarshaller(instance, state) -> None:
+def default_unmarshaller(instance: Any, state: Any) -> None:
     """
     Restore the state of an object.
 

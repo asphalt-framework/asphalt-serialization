@@ -79,6 +79,8 @@ testpaths = ["tests"]
 
 [tool.mypy]
 python_version = "3.7"
+strict = true
+show_error_codes = true
 ignore_missing_imports = true
 
 [tool.coverage.run]
