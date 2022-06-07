@@ -4,6 +4,7 @@ Using serializers
 Using serializers is quite straightforward::
 
     from asphalt.core import inject, resource
+    from asphalt.serialization.api import Serializer
 
     @inject
     async def handler(*, serializer: Serializer = resource()):
