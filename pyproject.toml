@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools >= 61",
+    "setuptools >= 64",
     "setuptools_scm >= 6.4"
 ]
 build-backend = "setuptools.build_meta"
@@ -25,10 +25,7 @@ classifiers = [
 ]
 requires-python = ">=3.7"
 dependencies = [
-    "asphalt ~= 4.8",
-    "msgpack ~= 1.0; extra == 'msgpack' or extra == 'test' or extra == 'doc'",
-    "cbor2 ~= 5.0; extra == 'cbor' or extra == 'test' or extra == 'doc'",
-    "ruamel.yaml >= 0.15; extra == 'yaml' or extra == 'test' or extra == 'doc'",
+    "asphalt ~= 4.8"
 ]
 dynamic = ["version"]
 
@@ -36,19 +33,20 @@ dynamic = ["version"]
 Homepage = "https://github.com/asphalt-framework/asphalt-serialization"
 
 [project.optional-dependencies]
-msgpack = []
-cbor = []
-yaml = []
+msgpack = ["msgpack ~= 1.0"]
+cbor = ["cbor2 ~= 5.0"]
+yaml = ["ruamel.yaml >= 0.15"]
 test = [
+    "asphalt-serialization[msgpack,cbor,yaml]",
     "pytest",
     "pytest-cov",
     "pytest-asyncio",
 ]
 doc = [
-    "Sphinx >= 1.5",
-    "sphinx_rtd_theme",
-    "sphinx-autodoc-typehints >= 1.0.5",
-    "sphinxcontrib-asyncio >= 0.2.0",
+    "asphalt-serialization[msgpack,cbor,yaml]",
+    "Sphinx >= 7",
+    "sphinx_rtd_theme >= 1.3.0",
+    "sphinx-autodoc-typehints >= 1.2.0",
 ]
 
 [project.entry-points."asphalt.components"]
@@ -65,12 +63,19 @@ yaml = "asphalt.serialization.serializers.yaml:YAMLSerializer"
 version_scheme = "post-release"
 local_scheme = "dirty-tag"
 
-[tool.isort]
-skip_gitignore = true
-profile = "black"
+[tool.ruff]
+select = [
+    "E", "F", "W",  # default Flake8
+    "G",            # flake8-logging-format
+    "I",            # isort
+    "ISC",          # flake8-implicit-str-concat
+    "PGH",          # pygrep-hooks
+    "RUF100",       # unused noqa (yesqa)
+    "UP",           # pyupgrade
+]
 
-[tool.flake8]
-max-line-length = 88
+[tool.ruff.isort]
+known-first-party = ["asphalt.serialization"]
 
 [tool.pytest.ini_options]
 addopts = "-rsx --tb=short"
@@ -96,13 +101,14 @@ legacy_tox_ini = """
 [tox]
 envlist = py37, py38, py39, py310, py311, pypy3
 skip_missing_interpreters = true
-isolated_build = true
+minversion = 4.4.3
 
 [testenv]
 extras = test
 commands = python -m pytest {posargs}
+package = editable
 
 [testenv:docs]
 extras = doc
-commands = sphinx-build docs build/sphinx
+commands = sphinx-build -n docs build/sphinx
 """

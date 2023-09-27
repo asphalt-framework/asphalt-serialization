@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sys
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable  # noqa: F401
+from collections.abc import Callable
 from inspect import signature
 from typing import Any, Generic, TypeVar
 
