@@ -5,19 +5,19 @@
   :target: https://coveralls.io/github/asphalt-framework/asphalt-serialization?branch=master
   :alt: Code Coverage
 
-This Asphalt framework component provides a standardized interface for a number of different
-serialization algorithms:
+This Asphalt framework component provides a standardized interface for a number of
+different serialization algorithms:
 
 * CBOR_ (using `cbor2 <http://pypi.python.org/pypi/cbor2>`_)
 * JSON_ (using the Python standard library ``json`` module)
 * msgpack_ (using `msgpack-python <https://pypi.python.org/pypi/msgpack-python>`_)
 * Pickle_ (using the Python standard library ``pickle`` module)
-* YAML_ (using `PyYAML <https://pypi.python.org/pypi/PyYAML>`_)
+* YAML_ (using `ruamel.yaml <https://pypi.org/project/ruamel.yaml/>`_)
 
 Additional backends may be provided through third party plugins.
 
-Some serializers also provide hooks for safely (un)marshalling custom types and this mechanism
-can easily be plugged into a third party marshalling library.
+Some serializers also provide hooks for safely (un)marshalling custom types and this
+mechanism can easily be plugged into a third party marshalling library.
 
 .. _CBOR: http://cbor.io/
 .. _JSON: http://wikipedia.org/wiki/JSON

@@ -23,7 +23,7 @@ class YAMLSerializer(Serializer):
     .. warning:: This serializer is insecure in unsafe mode because it allows execution
       of arbitrary code when deserializing.
 
-    .. seealso:: `PyYAML documentation <http://pyyaml.org/wiki/PyYAMLDocumentation>`_
+    .. seealso:: `ruamel.yaml documentation <https://yaml.readthedocs.io/en/latest/>`_
 
     :param safe: ``True`` to (de)serialize in safe mode, ``False`` to enable extended
         tags
