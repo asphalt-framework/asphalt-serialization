@@ -29,7 +29,7 @@ class YAMLSerializer(Serializer):
         tags
     """
 
-    __slots__ = "_yaml", "_dumper_options"
+    __slots__ = "_yaml"
 
     def __init__(self, safe: bool = True):
         self._yaml = YAML(typ="safe" if safe else "unsafe")
