@@ -9,7 +9,7 @@ Using serializers is quite straightforward::
     @inject
     async def handler(*, serializer: Serializer = resource()):
         serialized = serializer.serialize({'foo': 'example JSON object'})
-        original = serializer.deserialize(payload)
+        original = serializer.deserialize(serialized)
 
 This example assumes a configuration where a JSON serializer is present in the context
 as the default serializer resource.
