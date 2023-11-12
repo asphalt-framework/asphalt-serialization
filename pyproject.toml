@@ -65,6 +65,7 @@ local_scheme = "dirty-tag"
 
 [tool.ruff]
 select = [
+    "ASYNC",        # flake8-async
     "E", "F", "W",  # default Flake8
     "G",            # flake8-logging-format
     "I",            # isort
