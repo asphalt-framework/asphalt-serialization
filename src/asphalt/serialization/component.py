@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from asphalt.core import Component, Context, PluginContainer
+from asphalt.core import Component, PluginContainer, add_resource
 
 from .api import CustomizableSerializer, Serializer
 
@@ -40,12 +40,12 @@ class SerializationComponent(Component):
         self.resource_name = resource_name
         self.serializer: Serializer = serializer_types.create_object(backend, **options)
 
-    async def start(self, ctx: Context) -> None:
+    async def start(self) -> None:
         types: list[type] = [Serializer, type(self.serializer)]
         if isinstance(self.serializer, CustomizableSerializer):
             types.append(CustomizableSerializer)
 
-        ctx.add_resource(self.serializer, self.resource_name, types=types)
+        await add_resource(self.serializer, self.resource_name, types=types)
         logger.info(
             "Configured serializer (%s; type=%s)",
             self.resource_name,
