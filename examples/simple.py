@@ -1,22 +1,23 @@
 """A simple example that serializes a dictionary and prints out the result."""
-import asyncio
+# isort: off
+from __future__ import annotations
 
-from asphalt.core import ContainerComponent, Context, run_application
+from asphalt.core import CLIApplicationComponent, run_application, require_resource
+from asphalt.serialization import Serializer
 
-from asphalt.serialization.api import Serializer
 
-
-class ApplicationComponent(ContainerComponent):
-    async def start(self, ctx: Context) -> None:
+class ApplicationComponent(CLIApplicationComponent):
+    async def start(self) -> None:
         self.add_component("serialization", backend="json")
-        await super().start(ctx)
+        await super().start()
 
-        serializer = ctx.require_resource(Serializer)
+    async def run(self) -> int | None:
+        serializer = require_resource(Serializer)
         payload = serializer.serialize(
             {"a": 1, "b": 5.03, "c": [1, 2, 3], "d": {"x": "nested"}}
         )
         print("JSON serialized dict:", payload.decode())
-        asyncio.get_event_loop().stop()
+        return None
 
 
 run_application(ApplicationComponent())

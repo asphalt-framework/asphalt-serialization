@@ -5,8 +5,8 @@ from typing import Any
 from asphalt.core import resolve_reference
 from msgpack import ExtType, packb, unpackb
 
-from ..api import CustomizableSerializer
-from ..object_codec import DefaultCustomTypeCodec
+from .._api import CustomizableSerializer
+from .._object_codec import DefaultCustomTypeCodec
 
 
 class MsgpackTypeCodec(DefaultCustomTypeCodec["MsgpackSerializer"]):

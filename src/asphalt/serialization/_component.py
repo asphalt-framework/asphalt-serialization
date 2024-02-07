@@ -5,7 +5,7 @@ from typing import Any
 
 from asphalt.core import Component, PluginContainer, add_resource
 
-from .api import CustomizableSerializer, Serializer
+from ._api import CustomizableSerializer, Serializer
 
 serializer_types: PluginContainer = PluginContainer(
     "asphalt.serialization.serializers", Serializer

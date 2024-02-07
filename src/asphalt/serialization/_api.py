@@ -8,7 +8,7 @@ from typing import Any, Generic, TypeVar
 
 from asphalt.core import qualified_name
 
-from .marshalling import default_marshaller, default_unmarshaller
+from ._marshalling import default_marshaller, default_unmarshaller
 
 if sys.version_info >= (3, 10):
     from typing import TypeAlias

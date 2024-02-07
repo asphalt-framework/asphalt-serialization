@@ -4,6 +4,9 @@
 .. image:: https://coveralls.io/repos/github/asphalt-framework/asphalt-serialization/badge.svg?branch=master
   :target: https://coveralls.io/github/asphalt-framework/asphalt-serialization?branch=master
   :alt: Code Coverage
+.. image:: https://readthedocs.org/projects/asphalt-serialization/badge/?version=latest
+  :target: https://asphalt-serialization.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation
 
 This Asphalt framework component provides a standardized interface for a number of
 different serialization algorithms:

@@ -5,8 +5,8 @@ from typing import Any
 import cbor2
 from asphalt.core import qualified_name, resolve_reference
 
-from ..api import CustomizableSerializer
-from ..object_codec import DefaultCustomTypeCodec
+from .._api import CustomizableSerializer
+from .._object_codec import DefaultCustomTypeCodec
 
 
 class CBORTypeCodec(DefaultCustomTypeCodec["CBORSerializer"]):

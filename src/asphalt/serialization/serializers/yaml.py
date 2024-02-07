@@ -5,7 +5,7 @@ from typing import Any
 
 from ruamel.yaml import YAML
 
-from ..api import Serializer
+from .._api import Serializer
 
 
 class YAMLSerializer(Serializer):

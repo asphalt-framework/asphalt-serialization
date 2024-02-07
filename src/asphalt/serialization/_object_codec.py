@@ -5,7 +5,7 @@ from typing import Any, Generic
 
 from asphalt.core import qualified_name
 
-from .api import CustomTypeCodec, T_Serializer
+from ._api import CustomTypeCodec, T_Serializer
 
 
 class DefaultCustomTypeCodec(Generic[T_Serializer], CustomTypeCodec[T_Serializer]):

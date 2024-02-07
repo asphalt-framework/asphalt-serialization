@@ -1,5 +1,5 @@
 .. include:: ../README.rst
-   :start-line: 7
+   :start-line: 9
    :end-before: Project links
 
 Table of contents
@@ -11,5 +11,5 @@ Table of contents
    configuration
    usage
    extending
+   api
    versionhistory
-   py-modindex

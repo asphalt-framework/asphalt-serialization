@@ -1,12 +1,11 @@
 """An example that demonstrates how to serialize custom types."""
+# isort: off
 from __future__ import annotations
 
-import asyncio
 from dataclasses import dataclass
 
-from asphalt.core import ContainerComponent, Context, run_application
-
-from asphalt.serialization.api import CustomizableSerializer
+from asphalt.core import CLIApplicationComponent, run_application, require_resource
+from asphalt.serialization import CustomizableSerializer
 
 
 @dataclass
@@ -18,18 +17,19 @@ class Book:
     sequel: Book | None = None
 
 
-class ApplicationComponent(ContainerComponent):
-    async def start(self, ctx: Context) -> None:
+class ApplicationComponent(CLIApplicationComponent):
+    async def start(self) -> None:
         self.add_component("serialization", backend="json")
-        await super().start(ctx)
+        await super().start()
 
-        serializer = ctx.require_resource(CustomizableSerializer)
+    async def run(self) -> int | None:
+        serializer = require_resource(CustomizableSerializer)
         serializer.register_custom_type(Book, typename="Book")  # typename is optional
         book2 = Book("The Fall of Hyperion", "Dan Simmons", 1995, "978-0553288209")
         book1 = Book("Hyperion", "Dan Simmons", 1989, "978-0553283686", book2)
         payload = serializer.serialize(book1)
         print("JSON serialized dict:", payload.decode())
-        asyncio.get_event_loop().stop()
+        return None
 
 
 run_application(ApplicationComponent())

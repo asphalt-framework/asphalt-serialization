@@ -6,8 +6,8 @@ from typing import Any
 
 from asphalt.core import resolve_reference
 
-from ..api import CustomizableSerializer
-from ..object_codec import DefaultCustomTypeCodec
+from .._api import CustomizableSerializer
+from .._object_codec import DefaultCustomTypeCodec
 
 
 class JSONTypeCodec(DefaultCustomTypeCodec["JSONSerializer"]):

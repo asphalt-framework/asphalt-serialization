@@ -51,7 +51,7 @@ doc = [
 ]
 
 [project.entry-points."asphalt.components"]
-serialization = "asphalt.serialization.component:SerializationComponent"
+serialization = "asphalt.serialization:SerializationComponent"
 
 [project.entry-points."asphalt.serialization.serializers"]
 cbor = "asphalt.serialization.serializers.cbor:CBORSerializer"

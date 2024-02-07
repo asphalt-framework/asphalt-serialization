@@ -1,8 +1,8 @@
 import pytest
 from asphalt.core import Context, get_resource, require_resource
 
-from asphalt.serialization.api import CustomizableSerializer, Serializer
-from asphalt.serialization.component import SerializationComponent
+from asphalt.serialization._api import CustomizableSerializer, Serializer
+from asphalt.serialization._component import SerializationComponent
 from asphalt.serialization.serializers.json import JSONSerializer
 from asphalt.serialization.serializers.msgpack import MsgpackSerializer
 from asphalt.serialization.serializers.pickle import PickleSerializer

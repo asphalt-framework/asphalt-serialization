@@ -12,7 +12,7 @@ from _pytest.fixtures import SubRequest
 from cbor2 import CBORTag
 from msgpack import ExtType
 
-from asphalt.serialization.api import CustomizableSerializer
+from asphalt.serialization._api import CustomizableSerializer
 from asphalt.serialization.serializers.cbor import CBORSerializer, CBORTypeCodec
 from asphalt.serialization.serializers.json import JSONSerializer
 from asphalt.serialization.serializers.msgpack import (

@@ -3,7 +3,7 @@ from __future__ import annotations
 import pickle
 from typing import Any
 
-from ..api import Serializer
+from .._api import Serializer
 
 
 class PickleSerializer(Serializer):
