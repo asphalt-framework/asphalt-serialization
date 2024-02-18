@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 requires-python = ">=3.7"
 dependencies = [
@@ -38,7 +39,8 @@ cbor = ["cbor2 ~= 5.0"]
 yaml = ["ruamel.yaml >= 0.15"]
 test = [
     "asphalt-serialization[msgpack,cbor,yaml]",
-    "pytest",
+    "coverage >= 7",
+    "pytest >= 7",
     "pytest-cov",
     "pytest-asyncio",
 ]
@@ -84,10 +86,9 @@ asyncio_mode = "strict"
 testpaths = ["tests"]
 
 [tool.mypy]
-python_version = "3.7"
+python_version = "3.8"
 strict = true
-show_error_codes = true
-ignore_missing_imports = true
+explicit_package_bases = true
 
 [tool.coverage.run]
 source = ["asphalt.serialization"]
@@ -100,7 +101,7 @@ show_missing = true
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py37, py38, py39, py310, py311, pypy3
+envlist = py38, py39, py310, py311, py312, pypy3
 skip_missing_interpreters = true
 minversion = 4.4.3
 

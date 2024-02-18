@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from importlib.metadata import version
+import importlib.metadata
 
 from packaging.version import parse
 
@@ -16,7 +16,7 @@ project = "asphalt-serialization"
 author = "Alex Grönholm"
 copyright = "2015, " + author
 
-v = parse(version(project))
+v = parse(importlib.metadata.version("asphalt"))
 version = v.base_version
 release = v.public
 
@@ -24,6 +24,7 @@ language = "en"
 
 exclude_patterns = ["_build"]
 pygments_style = "sphinx"
+autodoc_default_options = {"members": True, "show-inheritance": True}
 highlight_language = "python3"
 todo_include_todos = False
 
