@@ -45,7 +45,7 @@ class SerializationComponent(Component):
         if isinstance(self.serializer, CustomizableSerializer):
             types.append(CustomizableSerializer)
 
-        await add_resource(self.serializer, self.resource_name, types=types)
+        add_resource(self.serializer, self.resource_name, types=types)
         logger.info(
             "Configured serializer (%s; type=%s)",
             self.resource_name,

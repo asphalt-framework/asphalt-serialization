@@ -1,9 +1,11 @@
 """An example that demonstrates how to serialize custom types."""
+
 # isort: off
 from __future__ import annotations
 
 from dataclasses import dataclass
 
+import anyio
 from asphalt.core import CLIApplicationComponent, run_application, require_resource
 from asphalt.serialization import CustomizableSerializer
 
@@ -32,4 +34,4 @@ class ApplicationComponent(CLIApplicationComponent):
         return None
 
 
-run_application(ApplicationComponent())
+anyio.run(run_application, ApplicationComponent())

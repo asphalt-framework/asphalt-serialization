@@ -1,5 +1,5 @@
 .. include:: ../README.rst
-   :start-line: 9
+   :start-line: 10
    :end-before: Project links
 
 Table of contents

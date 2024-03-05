@@ -12,5 +12,5 @@ from ._object_codec import DefaultCustomTypeCodec as DefaultCustomTypeCodec
 key: str
 value: Any
 for key, value in list(locals().items()):
-    if getattr(value, "__module__", "").startswith("asphalt.serialization."):
+    if getattr(value, "__module__", "").startswith(f"{__name__}."):
         value.__module__ = __name__

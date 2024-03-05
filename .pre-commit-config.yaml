@@ -16,7 +16,7 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.14
+    rev: v0.3.0
     hooks:
       - id: ruff
         args: [--fix, --show-fixes]
@@ -27,7 +27,8 @@ repos:
     hooks:
       - id: mypy
         additional_dependencies:
-#          - asphalt
+          - asphalt@git+https://github.com/asphalt-framework/asphalt@5.0
+          - cbor2
           - pytest
 
   - repo: https://github.com/pre-commit/pygrep-hooks

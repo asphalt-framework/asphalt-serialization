@@ -1,7 +1,9 @@
 """A simple example that serializes a dictionary and prints out the result."""
+
 # isort: off
 from __future__ import annotations
 
+import anyio
 from asphalt.core import CLIApplicationComponent, run_application, require_resource
 from asphalt.serialization import Serializer
 
@@ -20,4 +22,4 @@ class ApplicationComponent(CLIApplicationComponent):
         return None
 
 
-run_application(ApplicationComponent())
+anyio.run(run_application, ApplicationComponent())
