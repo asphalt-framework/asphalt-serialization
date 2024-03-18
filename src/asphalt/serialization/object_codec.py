@@ -25,9 +25,9 @@ class DefaultCustomTypeCodec(Generic[T_Serializer], CustomTypeCodec[T_Serializer
         self.type_key = type_key
         self.state_key = state_key
         self.wrap_callback: Callable[[str, Any], Any] = self.wrap_state_dict
-        self.unwrap_callback: Callable[
-            [Any], tuple[str, Any] | tuple[None, None]
-        ] = self.unwrap_state_dict
+        self.unwrap_callback: Callable[[Any], tuple[str, Any] | tuple[None, None]] = (
+            self.unwrap_state_dict
+        )
 
     def default_encoder(self, obj: Any) -> Any:
         obj_type = obj.__class__

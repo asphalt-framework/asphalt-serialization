@@ -1,4 +1,5 @@
 """An example that demonstrates how to serialize custom types."""
+
 from __future__ import annotations
 
 import asyncio
