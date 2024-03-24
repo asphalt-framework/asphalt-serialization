@@ -1,4 +1,5 @@
 """A simple example that serializes a dictionary and prints out the result."""
+
 import asyncio
 
 from asphalt.core import ContainerComponent, Context, run_application
