@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import anyio
-from asphalt.core import CLIApplicationComponent, run_application, require_resource
+from asphalt.core import CLIApplicationComponent, run_application, get_resource_nowait
 from asphalt.serialization import Serializer
 
 
@@ -14,7 +14,7 @@ class ApplicationComponent(CLIApplicationComponent):
         await super().start()
 
     async def run(self) -> int | None:
-        serializer = require_resource(Serializer)
+        serializer = get_resource_nowait(Serializer)
         payload = serializer.serialize(
             {"a": 1, "b": 5.03, "c": [1, 2, 3], "d": {"x": "nested"}}
         )

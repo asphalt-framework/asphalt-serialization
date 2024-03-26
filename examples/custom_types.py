@@ -6,7 +6,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import anyio
-from asphalt.core import CLIApplicationComponent, run_application, require_resource
+from asphalt.core import CLIApplicationComponent, run_application, get_resource_nowait
 from asphalt.serialization import CustomizableSerializer
 
 
@@ -25,7 +25,7 @@ class ApplicationComponent(CLIApplicationComponent):
         await super().start()
 
     async def run(self) -> int | None:
-        serializer = require_resource(CustomizableSerializer)
+        serializer = get_resource_nowait(CustomizableSerializer)
         serializer.register_custom_type(Book, typename="Book")  # typename is optional
         book2 = Book("The Fall of Hyperion", "Dan Simmons", 1995, "978-0553288209")
         book1 = Book("Hyperion", "Dan Simmons", 1989, "978-0553283686", book2)
