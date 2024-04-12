@@ -3,7 +3,6 @@
 # isort: off
 from __future__ import annotations
 
-import anyio
 from asphalt.core import CLIApplicationComponent, run_application, get_resource_nowait
 from asphalt.serialization import Serializer
 
@@ -22,4 +21,4 @@ class ApplicationComponent(CLIApplicationComponent):
         return None
 
 
-anyio.run(run_application, ApplicationComponent())
+run_application(ApplicationComponent())

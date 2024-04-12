@@ -5,7 +5,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-import anyio
 from asphalt.core import CLIApplicationComponent, run_application, get_resource_nowait
 from asphalt.serialization import CustomizableSerializer
 
@@ -34,4 +33,4 @@ class ApplicationComponent(CLIApplicationComponent):
         return None
 
 
-anyio.run(run_application, ApplicationComponent())
+run_application(ApplicationComponent())
