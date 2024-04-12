@@ -53,7 +53,7 @@ class CBORTypeCodec(DefaultCustomTypeCodec["CBORSerializer"]):
             ) from None
 
         marshalled_state = marshaller(obj)
-        if wrap_state:
+        if wrap_state and self.type_tag is not None:
             serialized_state = encoder.encode_to_bytes(marshalled_state)
             wrapped_state = [typename, serialized_state]
             encoder.encode(cbor2.CBORTag(self.type_tag, wrapped_state))
@@ -129,7 +129,7 @@ class CBORSerializer(CustomizableSerializer):
         self.decoder_options: dict[str, Any] = decoder_options or {}
 
     def serialize(self, obj: Any) -> bytes:
-        return cbor2.dumps(obj, **self.encoder_options)  # type: ignore[no-any-return]
+        return cbor2.dumps(obj, **self.encoder_options)
 
     def deserialize(self, payload: bytes) -> Any:
         return cbor2.loads(payload, **self.decoder_options)

@@ -84,7 +84,7 @@ testpaths = ["tests"]
 
 [tool.mypy]
 python_version = "3.8"
-#strict = true
+strict = true
 explicit_package_bases = true
 
 [tool.coverage.run]
