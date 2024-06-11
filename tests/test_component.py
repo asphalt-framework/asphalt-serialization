@@ -1,5 +1,5 @@
 import pytest
-from asphalt.core import Context, get_resource_nowait
+from asphalt.core import Context, get_resource_nowait, start_component
 
 from asphalt.serialization import (
     CustomizableSerializer,
@@ -14,9 +14,8 @@ pytestmark = pytest.mark.anyio
 
 
 async def test_customizable_serializer() -> None:
-    component = SerializationComponent(backend="json")
     async with Context():
-        await component.start()
+        await start_component(SerializationComponent, {"backend": "json"})
 
         resource = get_resource_nowait(Serializer)
         assert isinstance(resource, JSONSerializer)
@@ -29,9 +28,8 @@ async def test_customizable_serializer() -> None:
 
 
 async def test_non_customizable_serializer() -> None:
-    component = SerializationComponent(backend="pickle")
     async with Context():
-        await component.start()
+        await start_component(SerializationComponent, {"backend": "pickle"})
 
         resource = get_resource_nowait(Serializer)
         assert isinstance(resource, PickleSerializer)
@@ -43,9 +41,10 @@ async def test_non_customizable_serializer() -> None:
 
 
 async def test_resource_name() -> None:
-    component = SerializationComponent(backend="msgpack", resource_name="alternate")
     async with Context():
-        await component.start()
+        await start_component(
+            SerializationComponent, {"backend": "msgpack", "resource_name": "alternate"}
+        )
 
         resource = get_resource_nowait(Serializer, "alternate")
         assert isinstance(resource, MsgpackSerializer)

@@ -44,10 +44,9 @@ of the serialization component::
     components:
       serialization:
         backend: cbor
-      serialization2:
-        type: serialization
-        backend: msgpack
+      serialization/msgpack:
         resource_name: msgpack
+        backend: msgpack
 
 The above configuration creates two serializer resources, available under 6 different
 combinations:

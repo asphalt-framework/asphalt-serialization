@@ -33,4 +33,4 @@ class ApplicationComponent(CLIApplicationComponent):
         return None
 
 
-run_application(ApplicationComponent())
+run_application(ApplicationComponent)
