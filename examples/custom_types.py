@@ -6,7 +6,6 @@ import asyncio
 from dataclasses import dataclass
 
 from asphalt.core import ContainerComponent, Context, run_application
-
 from asphalt.serialization.api import CustomizableSerializer
 
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 import cbor2
+
 from asphalt.core import qualified_name, resolve_reference
 
 from ..api import CustomizableSerializer

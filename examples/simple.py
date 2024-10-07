@@ -3,7 +3,6 @@
 import asyncio
 
 from asphalt.core import ContainerComponent, Context, run_application
-
 from asphalt.serialization.api import Serializer
 
 
