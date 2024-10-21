@@ -1,6 +1,6 @@
 import pytest
-from asphalt.core.context import Context
 
+from asphalt.core.context import Context
 from asphalt.serialization.api import CustomizableSerializer, Serializer
 from asphalt.serialization.component import SerializationComponent
 from asphalt.serialization.serializers.json import JSONSerializer
