@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from asphalt.core import resolve_reference
 from msgpack import ExtType, packb, unpackb
+
+from asphalt.core import resolve_reference
 
 from ..api import CustomizableSerializer
 from ..object_codec import DefaultCustomTypeCodec
