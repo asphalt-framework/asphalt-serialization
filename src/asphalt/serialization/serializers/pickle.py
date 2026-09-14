@@ -19,9 +19,9 @@ class PickleSerializer(Serializer):
     __slots__ = "protocol"
 
     def __init__(self, protocol: int = pickle.HIGHEST_PROTOCOL):
-        assert (
-            0 <= protocol <= pickle.HIGHEST_PROTOCOL
-        ), f'"protocol" must be between 0 and {pickle.HIGHEST_PROTOCOL}'
+        assert 0 <= protocol <= pickle.HIGHEST_PROTOCOL, (
+            f'"protocol" must be between 0 and {pickle.HIGHEST_PROTOCOL}'
+        )
 
         self.protocol: int = protocol
 
